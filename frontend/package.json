@@ -1,0 +1,49 @@
+{
+  "name": "new-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@alchemy/aa-accounts": "^1.2.0",
+    "@alchemy/aa-alchemy": "^1.2.0",
+    "@alchemy/aa-core": "^1.2.0",
+    "@types/node": "20.2.5",
+    "@types/react": "18.2.9",
+    "@types/react-dom": "18.2.4",
+    "@web3auth/metamask-adapter": "^7.1.2",
+    "@web3auth/modal": "^7.1.2",
+    "@web3auth/openlogin-adapter": "^7.1.2",
+    "@web3auth/torus-evm-adapter": "^7.1.2",
+    "@web3auth/torus-wallet-connector-plugin": "^7.1.2",
+    "@web3auth/wallet-connect-v2-adapter": "^7.1.2",
+    "alchemy-sdk": "^3.0.0",
+    "connectkit": "^1.4.0",
+    "eslint": "8.42.0",
+    "eslint-config-next": "13.4.4",
+    "ethers": "5.7.2",
+    "fs": "^0.0.1-security",
+    "lokijs": "^1.5.12",
+    "next": "13.4.4",
+    "pino-pretty": "^10.0.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-icons": "^4.12.0",
+    "tls": "^0.0.1",
+    "typescript": "5.1.3",
+    "viem": "^1.19.9",
+    "wagmi": "^1.0.9",
+    "web3": "^4.2.2"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "encoding": "^0.1.13",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
+    "utf-8-validate": "^5.0.10"
+  }
+}
