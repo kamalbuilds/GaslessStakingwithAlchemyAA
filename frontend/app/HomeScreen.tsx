@@ -4,6 +4,7 @@ import MintNFT from '@/components/MintNFT/MintNFT';
 import MintTokens from '@/components/MintTokens/MintTokens';
 import UserDetails from '@/components/UserDetails';
 import WithdrawNFTs from '@/components/WithdrawNFT/WithdrawNFTs';
+import Navbar from '@/components/instructionsComponent/navigation/navbar';
 import React from 'react';
 
 const HomeScreen = ({
@@ -11,7 +12,9 @@ const HomeScreen = ({
     setActiveTab
 }: any) => {
     return (
-        <div className='w-[75%] '>
+        <div className='w-[75%] p-[10px]'>
+
+            <Navbar />
 
             {activeTab === 1 && <UserDetails />}
 

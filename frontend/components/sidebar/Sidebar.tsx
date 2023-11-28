@@ -12,10 +12,10 @@ const Sidebar = ({
     setActiveTab
 }: any) => {
     return (
-        <div className='w-[25%] '>
-            Sidebar
+        <div className='w-[25%] p-[10px]'>
+            <div className='text-[26px] pt-[10px] mb-[20px]'>Gasless Staking</div>
 
-            <div className='mx-[20px] my-[20px]'>
+            <div className='mx-[20px] pt-[13px]'>
                 <div className='flex flex-col gap-8'>
                     <div onClick={() => setActiveTab(1)} className='flex flex-row gap-4 items-center cursor-pointer'>
                         <IoMdHome className='w-[25px] h-[25px]' />

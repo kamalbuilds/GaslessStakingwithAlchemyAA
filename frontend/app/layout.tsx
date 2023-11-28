@@ -36,7 +36,7 @@ export default function RootLayout({
           <ConnectKitProvider mode="dark">
             <body>
               <div style={{ display: "flex", flexDirection: "column" }}>
-                <Navbar />
+                {/* <Navbar /> */}
                 {children}
               </div>
             </body>

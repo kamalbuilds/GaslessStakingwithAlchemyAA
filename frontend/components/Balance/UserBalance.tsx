@@ -14,8 +14,8 @@ const UserBalance = () => {
         if (provider) {
             const fetchNFTs = async () => {
                 console.log("Provider", provider)
-                const res = await provider.core.getTokenBalances(smartWalletAddress);
-                console.log("Token Balance", res);
+                const res = await provider.core.getBalance(smartWalletAddress);
+                console.log("Token Balance", res, Number(res));
             }
 
             fetchNFTs();
