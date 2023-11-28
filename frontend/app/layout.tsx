@@ -3,10 +3,8 @@ import { WagmiConfig, createConfig } from "wagmi";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import Navbar from "@/components/instructionsComponent/navigation/navbar";
 import Footer from "@/components/instructionsComponent/navigation/footer";
-import { goerli } from "viem/chains";
+import { goerli, sepolia } from "viem/chains";
 import AccountAbstractionContextProvider from "@/context/AccountAbstractionContext";
-
-
 
 const config = createConfig(
   getDefaultConfig({
@@ -14,7 +12,7 @@ const config = createConfig(
     alchemyId: process.env.ALCHEMY_API_KEY, // or infuraId
     walletConnectProjectId: process.env.WALLETCONNECT_PROJECT_ID || '13cb273de7349b752d7b515254c2c972',
 
-    chains: [goerli],
+    chains: [sepolia],
 
     // Required
     appName: "You Create Web3 Dapp",
@@ -37,10 +35,9 @@ export default function RootLayout({
         <WagmiConfig config={config}>
           <ConnectKitProvider mode="dark">
             <body>
-              <div style={{ display: "flex", flexDirection: "column", minHeight: "105vh" }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <Navbar />
-                <div style={{ flexGrow: 1 }}>{children}</div>
-                <Footer />
+                {children}
               </div>
             </body>
           </ConnectKitProvider>

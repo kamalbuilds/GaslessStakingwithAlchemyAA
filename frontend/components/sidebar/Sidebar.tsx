@@ -12,7 +12,7 @@ const Sidebar = ({
     setActiveTab
 }: any) => {
     return (
-        <div className='w-[25%] bg-blue-400'>
+        <div className='w-[25%] '>
             Sidebar
 
             <div className='mx-[20px] my-[20px]'>
@@ -29,10 +29,6 @@ const Sidebar = ({
                         <MdAccountBalanceWallet className='w-[25px] h-[25px]' />
                         <div className='text-[20px]'>Balance</div>
                     </div>
-                    <div onClick={() => setActiveTab(4)} className='flex cursor-pointer flex-row gap-4 items-center'>
-                        <BiSolidCoinStack className='w-[25px] h-[25px]' />
-                        <div className='text-[20px]'>Mint ERC 20 Token</div>
-                    </div>
                     <div onClick={() => setActiveTab(5)} className='flex cursor-pointer flex-row gap-4 items-center'>
                         <BiSolidCoinStack className='w-[25px] h-[25px]' />
                         <div className='text-[20px]'>Mint PokeMon NFT</div>
@@ -40,6 +36,11 @@ const Sidebar = ({
                     <div onClick={() => setActiveTab(6)} className='flex cursor-pointer flex-row gap-4 items-center'>
                         <BiSolidCoinStack className='w-[25px] h-[25px]' />
                         <div className='text-[20px]'>Send Batch Transaction</div>
+                    </div>
+
+                    <div onClick={() => setActiveTab(7)} className='flex cursor-pointer flex-row gap-4 items-center'>
+                        <BiSolidCoinStack className='w-[25px] h-[25px]' />
+                        <div className='text-[20px]'>Claim and Withdraw</div>
                     </div>
                 </div>
                 <div>
