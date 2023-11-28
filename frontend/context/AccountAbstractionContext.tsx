@@ -65,7 +65,7 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
                         chainNamespace: CHAIN_NAMESPACES.EIP155,
                         chainId: "0xaa36a7",
                         blockExplorer: 'https://sepolia.etherscan.io',
-                        rpcTarget: "https://eth-goerli.g.alchemy.com/v2/FeLNR_fT5MCzveDv2FqUklZv4tCWyEjc", // This is the public RPC we have added, please pass on your own endpoint while creating an app
+                        rpcTarget: "https://eth-sepolia.g.alchemy.com/v2/EGlJwOf582RNqCUcxTiiy8_XGRGGsx-h", // This is the public RPC we have added, please pass on your own endpoint while creating an app
                     },
                     uiConfig: {
                         appName: "W3A",
@@ -82,40 +82,15 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
                     web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
                 });
 
-                // const torusPlugin = new TorusWalletConnectorPlugin({
-                //     torusWalletOpts: {},
-                //     walletInitOptions: {
-                //         whiteLabel: {
-                //             theme: { isDark: true, colors: { primary: "#00a8ff" } },
-                //             logoDark: "https://web3auth.io/images/web3auth-logo.svg",
-                //             logoLight: "https://web3auth.io/images/web3auth-logo---Dark.svg",
-                //         },
-                //         useWalletConnect: true,
-                //         enableLogging: true,
-                //     },
-                // });
-                // setTorusPlugin(torusPlugin);
-                // await web3auth.addPlugin(torusPlugin);
-
-                // read more about adapters here: https://web3auth.io/docs/sdk/pnp/web/adapters/
-
-                // adding wallet connect v2 adapter
-                // const defaultWcSettings = await getWalletConnectV2Settings("eip155", [11155111], "531734e77d8f82f2e0dc25b923ad1063");
-                // const walletConnectV2Adapter = new WalletConnectV2Adapter({
-                //     adapterSettings: { ...defaultWcSettings.adapterSettings },
-                //     loginSettings: { ...defaultWcSettings.loginSettings },
-                // });
-
-                // web3auth.configureAdapter(walletConnectV2Adapter);
-
                 const metamaskAdapter = new MetamaskAdapter({
                     clientId,
-                    sessionTime: 3600, // 1 hour in seconds
-                    web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
+                    sessionTime: 86400, // 1 hour in seconds
+                    web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
                     chainConfig: {
                         chainNamespace: CHAIN_NAMESPACES.EIP155,
                         chainId: "0xaa36a7",
-                        rpcTarget: "https://eth-goerli.g.alchemy.com/v2/FeLNR_fT5MCzveDv2FqUklZv4tCWyEjc", // This is the public RPC we have added, please pass on your own endpoint while creating an app
+                        blockExplorer: 'https://sepolia.etherscan.io',
+                        rpcTarget: "https://eth-sepolia.g.alchemy.com/v2/EGlJwOf582RNqCUcxTiiy8_XGRGGsx-h", // This is the public RPC we have added, please pass on your own endpoint while creating an app
                     },
                 });
                 // we can change the above settings using this function
@@ -124,7 +99,8 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
                     chainConfig: {
                         chainNamespace: CHAIN_NAMESPACES.EIP155,
                         chainId: "0xaa36a7",
-                        rpcTarget: "https://eth-goerli.g.alchemy.com/v2/FeLNR_fT5MCzveDv2FqUklZv4tCWyEjc", // This is the public RPC we have added, please pass on your own endpoint while creating an app
+                        blockExplorer: 'https://sepolia.etherscan.io',
+                        rpcTarget: "https://eth-sepolia.g.alchemy.com/v2/EGlJwOf582RNqCUcxTiiy8_XGRGGsx-h", // This is the public RPC we have added, please pass on your own endpoint while creating an app
                     },
                     web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
                 });
