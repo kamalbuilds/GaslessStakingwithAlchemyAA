@@ -6,6 +6,7 @@ import { ethers } from 'ethers';
 import React, { useContext, useEffect, useState } from 'react';
 import ShowNFT from './ShowNFT';
 import { Hash, encodeFunctionData } from 'viem';
+import ShowStakedNFT from './ShowStakedNFT';
 
 const MintAndStakeNFT = () => {
 
@@ -15,14 +16,17 @@ const MintAndStakeNFT = () => {
 
     console.log("Provider in Mint and Stake NFT", provider, web3auth)
 
+    let fetchNFTs: () => void;
+
     useEffect(() => {
         if (provider) {
-            const fetchNFTs = async () => {
+            fetchNFTs = async () => {
                 console.log("Provider", provider)
                 const nfts = await provider.nft.getNftsForOwner(smartWalletAddress);
                 const { ownedNfts } = nfts;
                 setOwnedNFTs(ownedNfts);
                 console.log("NFTS", nfts);
+
             }
 
             fetchNFTs();
@@ -55,7 +59,6 @@ const MintAndStakeNFT = () => {
             return approveTxData;
         }
     }
-
     const stakeNFT = async (tokenId: any) => {
         console.log("TokenId", tokenId, typeof (tokenId));
 
@@ -80,9 +83,6 @@ const MintAndStakeNFT = () => {
 
 
     }
-
-
-
     const sendBatch = async (tokenId: any) => {
 
         const approveCallData = await approveNFT(tokenId);
@@ -100,6 +100,7 @@ const MintAndStakeNFT = () => {
         try {
             txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
             console.log("Tx hash", txHash);
+            fetchNFTs();
         } catch (e) {
             console.log("Error in minting", e);
             // setMintStatus("Error Minting");
@@ -110,6 +111,8 @@ const MintAndStakeNFT = () => {
         }
 
     }
+
+
 
     const claimRewards = async () => {
 
@@ -144,25 +147,33 @@ const MintAndStakeNFT = () => {
     }
 
 
+
     return (
         <div>
-            Mint and Stake Polygon NFT
 
-            <button onClick={() => claimRewards()} className='border border-gray-400 px-4 py-2 '>Claim Rewards</button>
+            <div className='text-[32px]'>Stake Your PokeMon NFT</div>
 
-            <div className='flex flex-row flex-wrap gap-4 mt-8'>
-                {ownedNFTs && ownedNFTs.map((nft) => {
-                    return (
-                        <ShowNFT
-                            nft={nft}
-                            approve={approveNFT}
-                            stake={stakeNFT}
-                            sendBatch={sendBatch}
-                        />
-                    )
-                })}
+            {ownedNFTs && (
+                <div className='mt-4'>
+                    <div className='font-light text-[18px] text-gray-400'>Stake the NFTs that you have minted and Earn rewards based on the time</div>
+                    <div className='flex flex-row flex-wrap gap-4 mt-4'>
+                        {ownedNFTs && ownedNFTs.map((nft) => {
+                            return (
+                                <ShowNFT
+                                    nft={nft}
+                                    approve={approveNFT}
+                                    stake={stakeNFT}
+                                    sendBatch={sendBatch}
+                                />
+                            )
+                        })}
 
-            </div>
+                    </div>
+                </div>
+            )}
+
+
+            <ShowStakedNFT />
         </div>
     );
 };
