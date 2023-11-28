@@ -20,14 +20,14 @@ export const useAlchemyProvider = ({
 }: AlchemyProviderProps) => {
   const alchemy = new Alchemy({
     network: Network.ETH_SEPOLIA,
-    apiKey: "FeLNR_fT5MCzveDv2FqUklZv4tCWyEjc",
+    apiKey: "EGlJwOf582RNqCUcxTiiy8_XGRGGsx-h",
   });
 
   const [provider, setProvider] = useState<AlchemyProvider>(
     new AlchemyProvider({
       chain: sepolia,
       entryPointAddress,
-      apiKey: "FeLNR_fT5MCzveDv2FqUklZv4tCWyEjc",
+      rpcUrl: "https://eth-sepolia.g.alchemy.com/v2/EGlJwOf582RNqCUcxTiiy8_XGRGGsx-h" // This is the public RPC we have added, please pass on your own endpoint while creating an app
     }).withAlchemyEnhancedApis(alchemy)
   )
 
