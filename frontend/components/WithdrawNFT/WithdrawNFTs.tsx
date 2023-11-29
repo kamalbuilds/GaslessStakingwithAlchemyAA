@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 const WithdrawNFTs = () => {
 
     const { provider, web3auth, smartWalletAddress } = useContext(AccountAbstractionContext);
-
+    // @ts-ignore
     const { getStakingInfo } = useStakingContract({ web3auth });
     const [stakedNFTTokenIds, showStakedNFTTokenIds] = useState();
     const [loadingNFTs, setLoadingNFTs] = useState(false);

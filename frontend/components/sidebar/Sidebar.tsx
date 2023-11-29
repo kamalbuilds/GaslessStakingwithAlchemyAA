@@ -5,8 +5,6 @@ import { MdAccountBalanceWallet } from "react-icons/md";
 import { BiSolidCoinStack } from "react-icons/bi";
 
 
-
-
 const Sidebar = ({
     activeTab,
     setActiveTab

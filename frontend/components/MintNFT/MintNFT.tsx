@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NFTABI, NFTContract } from '@/constants/PokemonNFT';
 import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import React, { useContext, useEffect, useState } from 'react';

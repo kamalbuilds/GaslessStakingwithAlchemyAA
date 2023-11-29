@@ -1,3 +1,4 @@
+"use client";
 import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import { LightSmartContractAccount } from '@alchemy/aa-accounts';
 import React, { useContext, useEffect, useState } from 'react';
@@ -15,6 +16,7 @@ const UserDetails = () => {
         if (provider) {
             const getState = async () => {
                 if (provider.account) {
+                    console.log("provider.account", provider.account);
                     const deploymentState = await provider.account.getDeploymentState();
                     const isAccountDeployed = await provider.account.isAccountDeployed();
                     toast.info("SmartAccount is deployed", isAccountDeployed);
