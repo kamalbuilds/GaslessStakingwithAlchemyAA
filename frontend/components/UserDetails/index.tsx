@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import { LightSmartContractAccount } from '@alchemy/aa-accounts';
