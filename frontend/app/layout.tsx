@@ -38,15 +38,16 @@ export default function RootLayout({
       <AccountAbstractionContextProvider>
         <WagmiConfig config={config}>
           <ConnectKitProvider mode="dark">
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <ThemeSwitcher />
-            <body>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <ToastContainer theme="dark"/>
-                {/* <Navbar /> */}
-                {children}
-              </div>
-            </body>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+
+              <body>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <ToastContainer theme="dark" />
+                  <Navbar />
+                  {children}
+                </div>
+              </body>
+            </ThemeProvider>
           </ConnectKitProvider>
         </WagmiConfig>
       </AccountAbstractionContextProvider>

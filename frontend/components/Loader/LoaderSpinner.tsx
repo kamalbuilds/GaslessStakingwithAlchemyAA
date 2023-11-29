@@ -1,15 +1,17 @@
 import React from 'react';
-import FadeLoader from "react-spinners/FadeLoader";
+import ClipLoader from "react-spinners/ClipLoader";
 
 const LoaderSpinner = ({
-    loading
+    loading,
+    size,
+    color
 }: any) => {
     return (
-        <FadeLoader
-            color="#3636da"
+        <ClipLoader
+            color={color ? color : "#3636da"}
             loading={loading}
             // cssOverride={override}
-            // size={150}
+            size={size ? size : 50}
             aria-label="Loading Spinner"
             data-testid="loader" />
     );

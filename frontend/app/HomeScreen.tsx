@@ -14,20 +14,13 @@ const HomeScreen = ({
     return (
         <div className='w-[75%] p-[10px]'>
 
-            <Navbar />
+            {/* <Navbar /> */}
 
             {activeTab === 1 && <UserDetails />}
-
-            {activeTab === 3 && <UserBalance />}
-
-            {activeTab === 5 && <MintNFT />}
-
-            {activeTab === 6 && <MintAndStakeNFT />}
-
-            {activeTab === 7 && <WithdrawNFTs />}
-
-
-
+            {activeTab === 2 && <UserBalance />}
+            {activeTab === 3 && <MintNFT />}
+            {activeTab === 4 && <MintAndStakeNFT />}
+            {activeTab === 5 && <WithdrawNFTs />}
 
         </div>
     );

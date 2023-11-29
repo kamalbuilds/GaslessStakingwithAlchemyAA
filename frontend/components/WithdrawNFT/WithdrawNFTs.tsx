@@ -7,6 +7,7 @@ import { useContractRead } from 'wagmi';
 import StakedNFT from '../BatchTransaction/StakedNFT';
 import LoaderSpinner from '../Loader/LoaderSpinner';
 import { toast } from "react-toastify";
+import AddressLabel from '../AddressLabel/AddressLabel';
 
 const WithdrawNFTs = () => {
 
@@ -15,24 +16,25 @@ const WithdrawNFTs = () => {
     const { getStakingInfo } = useStakingContract({ web3auth });
     const [stakedNFTTokenIds, showStakedNFTTokenIds] = useState();
     const [loadingNFTs, setLoadingNFTs] = useState(false);
+    const [isClaiming, setIsClaiming] = useState(false);
+    const [isWithdrawing, setIsWithdrawing] = useState(false);
+    const [mintTxHash, setMintTxHash] = useState<Hash>();
+
+    const getStakersData = async () => {
+        try {
+            setLoadingNFTs(true);
+            const res = await getStakingInfo(smartWalletAddress);
+            const { rewardNumber, nftTokenIds } = res;
+            showStakedNFTTokenIds(nftTokenIds);
+            setLoadingNFTs(false);
+        } catch (error) {
+            setLoadingNFTs(false);
+            console.log("Error", error)
+        }
+    }
 
     useEffect(() => {
-
         if (provider) {
-            setLoadingNFTs(true);
-            const getStakersData = async () => {
-                try {
-                    console.log("staking", getStakingInfo, smartWalletAddress)
-                    const res = await getStakingInfo(smartWalletAddress);
-                    const { rewardNumber, nftTokenIds } = res;
-                    showStakedNFTTokenIds(nftTokenIds);
-                    console.log("res in show staked nft", res);
-                    setLoadingNFTs(false);
-                } catch (error) {
-                    setLoadingNFTs(false);
-                    console.log("Error", error)
-                }
-            }
             getStakersData();
         }
 
@@ -40,71 +42,88 @@ const WithdrawNFTs = () => {
 
     const claimRewards = async () => {
 
-        const stakeCallData = encodeFunctionData({
-            abi: StakeNFTABI,
-            functionName: "claimRewards",
-            args: [],
-        });
-
-        const uoHash = await provider.sendUserOperation({
-            target: StakingNFT, //ERC 20 token
-            data: stakeCallData,
-        });
-
-        console.log("Uo HAsh", uoHash);
-
-        // setMintStatus("Minting");
-        let txHash: Hash;
-        try {
-            txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
-            toast.success("Rewards claimed successfully ✅");
-            console.log("Tx hash", txHash);
-        } catch (e) {
-            toast.error("error in withdrawing NFT")
-            console.log("error in withdrawing NFT", e);
-            // setMintStatus("Error Minting");
-            // setTimeout(() => {
-            //     setMintStatus("Mint");
-            // }, 5000);
-            return;
+        if (web3auth?.provider == null) {
+            throw new Error("web3auth provider is available");
         }
 
+        if (provider) {
+            try {
+                setIsClaiming(true);
+                const stakeCallData = encodeFunctionData({
+                    abi: StakeNFTABI,
+                    functionName: "claimRewards",
+                    args: [],
+                });
 
+                const uoHash = await provider.sendUserOperation({
+                    target: StakingNFT, //ERC 20 token
+                    data: stakeCallData,
+                });
+
+                let txHash: Hash;
+                txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
+                toast.success("Rewards claimed successfully ✅");
+                if (txHash) {
+                    setIsClaiming(false);
+
+                }
+
+            } catch (error) {
+                toast.error("Error in Claiming Rewards")
+                setIsClaiming(false);
+                console.log("error in Claiming Rewards", error);
+                return;
+            }
+        }
     }
 
-    const withdrawNFT = async () => {
+    const WithdrawAllNFTs = async () => {
 
-        console.log("res", stakedNFTTokenIds);
-
-        const stakeCallData = encodeFunctionData({
-            abi: StakeNFTABI,
-            functionName: "withdraw",
-            args: [stakedNFTTokenIds],
-        });
-
-        console.log("Call Data", stakeCallData);
-
-        const uoHash = await provider.sendUserOperation({
-            target: StakingNFT, //ERC 20 token
-            data: stakeCallData,
-        });
-
-        console.log("Uo HAsh", uoHash);
-
-        // setMintStatus("Minting");
-        let txHash: Hash;
-        try {
-            txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
-            toast.success("NFTs withdrawn successfully ✅");
-            console.log("Tx hash", txHash);
-        } catch (e) {
-            console.log("Error in minting", e);
-            // setMintStatus("Error Minting");
-            // setTimeout(() => {
-            //     setMintStatus("Mint");
-            // }, 5000);
-            return;
+        if (web3auth?.provider == null) {
+            throw new Error("web3auth provider is available");
         }
+
+        if (provider) {
+            try {
+                setIsWithdrawing(true);
+                console.log("res", stakedNFTTokenIds);
+
+                const stakeCallData = encodeFunctionData({
+                    abi: StakeNFTABI,
+                    functionName: "withdraw",
+                    args: [stakedNFTTokenIds],
+                });
+
+                console.log("Call Data", stakeCallData);
+
+                const uoHash = await provider.sendUserOperation({
+                    target: StakingNFT, //ERC 20 token
+                    data: stakeCallData,
+                });
+
+                console.log("Uo HAsh", uoHash);
+
+                // setMintStatus("Minting");
+                let txHash: Hash;
+                txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
+                console.log("Tx hash", txHash);
+                if (txHash) {
+                    setIsWithdrawing(false);
+                    setMintTxHash(txHash);
+                    getStakersData();
+                }
+                toast.success("NFTs withdrawn successfully ✅");
+                console.log("Tx hash", txHash);
+
+            } catch (error) {
+                toast.error("Error in withdrawing All NFTs")
+                console.log("Error in withdrawing", error);
+                setIsWithdrawing(false);
+                return;
+            }
+        }
+
+
 
     }
 
@@ -112,15 +131,34 @@ const WithdrawNFTs = () => {
         <div>
             <div className='text-[32px]'> Claim Rewards and Withdraw NFT</div>
 
-            <button onClick={claimRewards}
-                className='rounded-md border bg-blue-700 text-white hover:bg-blue-900 border-gray-400 px-4 py-2 m-4 ml-0'
-            >
-                Claim Rewards
-            </button>
-            <button onClick={withdrawNFT}
-                className='rounded-md  border border-blue-700 hover:bg-blue-700 hover:text-white px-4 py-2 m-4 ml-0'>
-                Withdraw All NFTs
-            </button>
+            {mintTxHash && <div className='flex flex-row gap-4'>
+                <div>Recent Transaction</div>
+                <div>
+                    {mintTxHash}
+                    <AddressLabel address={mintTxHash} isTransactionAddress />
+                </div>
+            </div>}
+
+            <div className='flex flex-row gap-4 mt-8'>
+                <button onClick={claimRewards}
+                    disabled={isClaiming}
+                    className='rounded-md flex flex-row items-center justify-center min-w-[150px] bg-blue-700 text-white hover:bg-blue-900 px-4 py-2 '
+                >
+                    {isClaiming ? (
+                        <LoaderSpinner color={"#FFF"} size={20} loading={true} />
+                    ) : `Claim Rewards`}
+                </button>
+
+                <button onClick={WithdrawAllNFTs}
+                    disabled={isWithdrawing}
+                    className='rounded-md min-w-[150px] border border-blue-700 hover:bg-blue-700 hover:text-white px-4 py-2 '
+                >
+                    {isWithdrawing ? (
+                        <LoaderSpinner color={"#FFF"} size={20} loading={true} />
+                    ) : `Withdraw NFTs`}
+                </button>
+            </div>
+
 
             {loadingNFTs ? (
                 <div className='flex flex-row items-center justify-center'>
@@ -128,14 +166,14 @@ const WithdrawNFTs = () => {
                 </div>
             ) : (
                 <>
-                    {stakedNFTTokenIds &&
+                    {stakedNFTTokenIds && stakedNFTTokenIds?.length > 0 &&
                         <>
                             <div className='text-[32px]'>NFTs Staked</div>
 
-                            <div className='flex flex-row flex-wrap gap-4'>
-                                {stakedNFTTokenIds && stakedNFTTokenIds.map((stakedNFTTokenId) => {
+                            <div className='flex flex-row py-[20px] flex-nowrap overflow-scroll gap-4'>
+                                {stakedNFTTokenIds && stakedNFTTokenIds?.map((stakedNFTTokenId) => {
                                     return (
-                                        <StakedNFT nftTokenId={stakedNFTTokenId} />
+                                        <StakedNFT getStakersData={getStakersData} nftTokenId={stakedNFTTokenId} />
                                     )
                                 })}
                             </div>

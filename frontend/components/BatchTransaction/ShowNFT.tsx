@@ -5,6 +5,7 @@ import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import React, { useContext, useState } from 'react';
 import { Hash, encodeFunctionData } from 'viem';
 import { toast } from "react-toastify";
+import LoaderSpinner from '../Loader/LoaderSpinner';
 
 type MintStatus =
     | "Stake"
@@ -15,20 +16,16 @@ type MintStatus =
 
 const ShowNFT = ({
     nft,
+    setMintTxHash
 }: any) => {
 
     const { web3auth, smartWalletAddress, provider } = useContext(AccountAbstractionContext);
-
-    const [mintTxHash, setMintTxHash] = useState<Hash>();
-    const [mintStatus, setMintStatus] = useState<MintStatus>("Stake");
-
+    const [isStaking, setIsStaking] = useState(false);
 
     const approveNFT = async (tokenId: any) => {
         if (web3auth?.provider == null) {
             throw new Error("web3auth provider is available");
         }
-
-        console.log("Approving NFT", tokenId, web3auth);
 
         if (web3auth) {
             const callData = encodeFunctionData({
@@ -36,55 +33,38 @@ const ShowNFT = ({
                 functionName: "approve",
                 args: [StakingNFT, tokenId],
             });
-
-            console.log("UO CAll data", callData);
-            // return callData;
             const approveTxData = {
                 target: NFTContract,
                 data: callData
             };
-
-            toast.success("Approving NFT");
             console.log("approveTxData data", approveTxData);
-
-
             return approveTxData;
         }
     }
 
     const stakeNFT = async (tokenId: any) => {
-        console.log("TokenId", tokenId, typeof (tokenId));
-
         const tokenIds = [tokenId]
-
         const stakeCallData = encodeFunctionData({
             abi: StakeNFTABI,
             functionName: "stake",
             args: [tokenIds],
         });
-
-        console.log("stake Call Data", stakeCallData);
-        // return stakeCallData;
-
         const stakeTxData = {
             target: StakingNFT,
             data: stakeCallData
         };
-
         console.log("stakeTxData Data", stakeTxData);
         return stakeTxData;
-
-
     }
 
-    const sendBatch = async (tokenId: any) => {
+    const handleStakeBatch = async (tokenId: any) => {
 
         if (!provider) {
             throw new Error("Provider not initialized");
         }
 
         setMintTxHash(undefined);
-        setMintStatus("Approving");
+        setIsStaking(true);
         const approveCallData = await approveNFT(tokenId);
         const stakeCallData = await stakeNFT(tokenId);
 
@@ -96,26 +76,19 @@ const ShowNFT = ({
 
         console.log("uoHash", uoHash)
         toast.update("minting going on");
-        setMintStatus("Staking");
         let txHash: Hash;
         try {
             txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
             toast.success("NFT Staked successfully ✅");
             console.log("Tx hash", txHash);
+            setIsStaking(false);
         } catch (e) {
-            setMintStatus("Error Staking");
             console.log("Error in minting", e);
-            setTimeout(() => {
-                setMintStatus("Stake");
-            }, 5000);
+            setIsStaking(false);
             return;
         }
 
         setMintTxHash(txHash);
-        setMintStatus("Staked");
-        setTimeout(() => {
-            setMintStatus("Stake");
-        }, 5000);
 
     }
 
@@ -144,14 +117,16 @@ const ShowNFT = ({
             <div className='flex flex-row gap-4 justify-center mt-[20px]'>
 
                 <button
-                    disabled={mintStatus !== "Stake"}
-                    onClick={() => sendBatch(nft.tokenId)}
-                    className="btn text-white bg-gradient-1 disabled:opacity-25 disabled:text-white transition ease-in-out duration-500 transform hover:scale-110 max-md:w-full border min-w-[200px] border-gray-400 bg-blue-600 hover:text-white hover:bg-blue-800 rounded-lg px-4 py-2 "
+                    disabled={isStaking}
+                    onClick={() => handleStakeBatch(nft.tokenId)}
+                    className='rounded-md flex flex-row items-center justify-center min-w-[250px] bg-blue-700 text-white hover:bg-blue-900 px-4 py-2 '
+
+                // className="btn text-white bg-gradient-1 disabled:opacity-25 disabled:text-white transition ease-in-out duration-500 transform hover:scale-110 max-md:w-full border min-w-[200px] border-gray-400 bg-blue-600 hover:text-white hover:bg-blue-800 rounded-lg px-4 py-2 "
 
                 >
-                    {mintStatus} {" "}{nft.name} NFT
-                    {(mintStatus === "Approving" || mintStatus === "Staking") && (
-                        <span className="loading loading-spinner loading-md"></span>
+                    {!isStaking && `Stake ${nft.name} NFT`}
+                    {isStaking && (
+                        <LoaderSpinner color={"#FFF"} size={25} loading={true} />
                     )}
                 </button>
             </div>

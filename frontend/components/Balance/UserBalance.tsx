@@ -2,13 +2,13 @@
 import { LightAccountABI } from '@/constants/LightAccount';
 import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import { ethers } from 'ethers';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 const UserBalance = () => {
 
     const { provider, web3auth, smartWalletAddress } = useContext(AccountAbstractionContext);
 
-    console.log("Provider in user balance", provider);
+    const [tokenBalance, setTokenBalance] = useState();
 
     useEffect(() => {
         if (provider) {
@@ -16,6 +16,7 @@ const UserBalance = () => {
                 console.log("Provider", provider)
                 const res = await provider.core.getBalance(smartWalletAddress);
                 console.log("Token Balance", res, Number(res));
+                setTokenBalance(Number(res));
             }
 
             fetchNFTs();
@@ -50,6 +51,11 @@ const UserBalance = () => {
             <div className='text-[32px]'> User Balance</div>
 
             <button onClick={fetchBalance}>Get Deposit</button>
+
+            <div className='flex flex-row gap-8'>
+                <div> Balance </div>
+                <div>{tokenBalance}</div>
+            </div>
 
         </div>
     );
