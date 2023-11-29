@@ -94,26 +94,20 @@ const WithdrawNFTs = () => {
                     args: [stakedNFTTokenIds],
                 });
 
-                console.log("Call Data", stakeCallData);
-
                 const uoHash = await provider.sendUserOperation({
                     target: StakingNFT, //ERC 20 token
                     data: stakeCallData,
                 });
 
-                console.log("Uo HAsh", uoHash);
-
                 // setMintStatus("Minting");
                 let txHash: Hash;
                 txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
-                console.log("Tx hash", txHash);
                 if (txHash) {
                     setIsWithdrawing(false);
                     setMintTxHash(txHash);
                     getStakersData();
                 }
                 toast.success("NFTs withdrawn successfully ✅");
-                console.log("Tx hash", txHash);
 
             } catch (error) {
                 toast.error("Error in withdrawing All NFTs")
@@ -166,12 +160,15 @@ const WithdrawNFTs = () => {
                 </div>
             ) : (
                 <>
+
+                    {/* @ts-ignore */}
                     {stakedNFTTokenIds && stakedNFTTokenIds?.length > 0 &&
                         <>
                             <div className='text-[32px]'>NFTs Staked</div>
 
                             <div className='flex flex-row py-[20px] flex-nowrap overflow-scroll gap-4'>
-                                {stakedNFTTokenIds && stakedNFTTokenIds?.map((stakedNFTTokenId) => {
+                                {/* @ts-ignore */}
+                                {stakedNFTTokenIds && stakedNFTTokenIds?.map((stakedNFTTokenId: any) => {
                                     return (
                                         <StakedNFT getStakersData={getStakersData} nftTokenId={stakedNFTTokenId} />
                                     )

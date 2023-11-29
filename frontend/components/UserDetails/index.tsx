@@ -18,9 +18,12 @@ const UserDetails = () => {
         if (provider) {
             const getState = async () => {
                 if (provider.account) {
+                    // @ts-ignore
                     const deploymentState = await provider.account.getDeploymentState();
+                    // @ts-ignore
                     const isAccountDeployed = await provider.account.isAccountDeployed();
                     setIsDeployed(isAccountDeployed);
+                    // @ts-ignore
                     const owner = await provider.account.getOwnerAddress();
                     setOwnerAddress(owner);
                 }

@@ -68,19 +68,16 @@ const ShowNFT = ({
         const approveCallData = await approveNFT(tokenId);
         const stakeCallData = await stakeNFT(tokenId);
 
-        console.log("Input Data", approveCallData, stakeCallData);
-
         const uoHash = await provider.sendUserOperation([
+            // @ts-ignore
             approveCallData, stakeCallData,
         ]);
 
-        console.log("uoHash", uoHash)
         toast.update("minting going on");
         let txHash: Hash;
         try {
             txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
             toast.success("NFT Staked successfully ✅");
-            console.log("Tx hash", txHash);
             setIsStaking(false);
         } catch (e) {
             console.log("Error in minting", e);
@@ -120,9 +117,6 @@ const ShowNFT = ({
                     disabled={isStaking}
                     onClick={() => handleStakeBatch(nft.tokenId)}
                     className='rounded-md flex flex-row items-center justify-center min-w-[250px] bg-blue-700 text-white hover:bg-blue-900 px-4 py-2 '
-
-                // className="btn text-white bg-gradient-1 disabled:opacity-25 disabled:text-white transition ease-in-out duration-500 transform hover:scale-110 max-md:w-full border min-w-[200px] border-gray-400 bg-blue-600 hover:text-white hover:bg-blue-800 rounded-lg px-4 py-2 "
-
                 >
                     {!isStaking && `Stake ${nft.name} NFT`}
                     {isStaking && (

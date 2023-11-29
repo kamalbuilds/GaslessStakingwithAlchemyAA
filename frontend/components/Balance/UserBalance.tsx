@@ -8,12 +8,12 @@ const UserBalance = () => {
 
     const { provider, web3auth, smartWalletAddress } = useContext(AccountAbstractionContext);
 
-    const [tokenBalance, setTokenBalance] = useState();
+    const [tokenBalance, setTokenBalance] = useState<number>();
 
     useEffect(() => {
         if (provider) {
             const fetchNFTs = async () => {
-                console.log("Provider", provider)
+                // @ts-ignore
                 const res = await provider.core.getBalance(smartWalletAddress);
                 console.log("Token Balance", res, Number(res));
                 setTokenBalance(Number(res));
@@ -26,7 +26,9 @@ const UserBalance = () => {
     const fetchBalance = async () => {
         if (web3auth) {
             const LightAccountSCAddress = smartWalletAddress;
+
             const web3Provider = new ethers.providers.Web3Provider(
+                // @ts-ignore
                 web3auth.provider,
                 "any"
             );

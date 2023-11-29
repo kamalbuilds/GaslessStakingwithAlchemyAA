@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 
 type StakingContractProps = {
     web3auth: any | null;
-    address: string;
+    address?: string;
 };
 
 export const useStakingContract = ({
@@ -34,7 +34,7 @@ export const useStakingContract = ({
             console.log("Staking Info", res)
 
             const { _rewards, _tokensStaked } = res;
-            const nftTokenIds = _tokensStaked.map((token) => {
+            const nftTokenIds = _tokensStaked.map((token: any) => {
                 const tokenNumber = Number(token);
                 console.log("TOken Number", tokenNumber)
                 return tokenNumber
@@ -47,17 +47,6 @@ export const useStakingContract = ({
         },
         [web3Provider]
     );
-
-
-
-
-
-    // const disconnectProviderFromAccount = useCallback(() => {
-    //     const disconnectedProvider = provider.disconnect();
-
-    //     setProvider(disconnectedProvider);
-    //     return disconnectedProvider;
-    // }, [provider]);
 
     return { getStakingInfo };
 };

@@ -1,11 +1,9 @@
+// @ts-nocheck
 'use client'
 import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import React, { useContext, useEffect, useState } from 'react';
 import ShowNFT from './ShowNFT';
-import ShowStakedNFT from './ShowStakedNFT';
 import LoaderSpinner from '../Loader/LoaderSpinner';
-import { useStakingContract } from '@/hooks/useContract';
-import StakedNFT from './StakedNFT';
 import AddressLabel from '../AddressLabel/AddressLabel';
 import { Hash } from 'viem';
 
@@ -17,12 +15,6 @@ const MintAndStakeNFT = () => {
     const [loadingNFTs, setLoadingNFTs] = useState(false);
     const [mintTxHash, setMintTxHash] = useState<Hash>();
 
-
-    const { getStakingInfo } = useStakingContract({ web3auth });
-    // const [stakedNFTTokenIds, showStakedNFTTokenIds] = useState();
-
-    console.log("Provider in Mint and Stake NFT", provider, web3auth)
-
     let fetchNFTs: () => void;
 
     useEffect(() => {
@@ -30,6 +22,7 @@ const MintAndStakeNFT = () => {
             fetchNFTs = async () => {
                 setLoadingNFTs(true);
                 try {
+                    // @ts-ignore
                     const nfts = await provider.nft.getNftsForOwner(smartWalletAddress);
                     const { ownedNfts } = nfts;
                     setOwnedNFTs(ownedNfts);
@@ -96,20 +89,6 @@ const MintAndStakeNFT = () => {
                 )}
             </div>
 
-            {/* <ShowStakedNFT /> */}
-
-            {/* {stakedNFTTokenIds &&
-                <>
-                    <div>NFTs Staked</div>
-
-                    {stakedNFTTokenIds && stakedNFTTokenIds.map((stakedNFTTokenId) => {
-                        return (
-                            <div key={stakedNFTTokenId}>
-                                <StakedNFT nftTokenId={stakedNFTTokenId} />
-                            </div>
-                        )
-                    })}</>
-            } */}
         </div>
     );
 };
