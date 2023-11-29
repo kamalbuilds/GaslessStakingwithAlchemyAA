@@ -95,6 +95,7 @@ const WithdrawNFTs = () => {
         let txHash: Hash;
         try {
             txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
+            toast.success("NFTs withdrawn successfully ✅");
             console.log("Tx hash", txHash);
         } catch (e) {
             console.log("Error in minting", e);
