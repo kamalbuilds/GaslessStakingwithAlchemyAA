@@ -5,6 +5,7 @@ import { Hash, encodeFunctionData } from 'viem';
 import { ethers } from 'ethers';
 import Image from 'next/image';
 import LoaderSpinner from '../Loader/LoaderSpinner';
+import { toast } from 'react-toastify';
 
 const MintNFT = () => {
 
@@ -137,8 +138,10 @@ const MintNFT = () => {
                 let txHash: Hash;
 
                 txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
+                toast.success("NFT Minted Successfully 🚀");
                 console.log("Tx hash", txHash);
             } catch (e) {
+                toast.error("Error in minting");
                 console.log("Error in minting", e);
                 // setMintStatus("Error Minting");
                 // setTimeout(() => {

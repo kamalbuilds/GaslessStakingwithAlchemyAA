@@ -1,6 +1,7 @@
 import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import { LightSmartContractAccount } from '@alchemy/aa-accounts';
 import React, { useContext, useEffect, useState } from 'react';
+import { toast } from "react-toastify";
 
 const UserDetails = () => {
 
@@ -16,6 +17,7 @@ const UserDetails = () => {
                 if (provider.account) {
                     const deploymentState = await provider.account.getDeploymentState();
                     const isAccountDeployed = await provider.account.isAccountDeployed();
+                    toast.info("SmartAccount is deployed", isAccountDeployed);
                     setIsDeployed(isAccountDeployed);
                     const owner = await provider.account.getOwnerAddress();
                     setOwnerAddress(owner);

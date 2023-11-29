@@ -5,6 +5,8 @@ import Navbar from "@/components/instructionsComponent/navigation/navbar";
 import Footer from "@/components/instructionsComponent/navigation/footer";
 import { goerli, sepolia } from "viem/chains";
 import AccountAbstractionContextProvider from "@/context/AccountAbstractionContext";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const config = createConfig(
   getDefaultConfig({
@@ -15,11 +17,11 @@ const config = createConfig(
     chains: [sepolia],
 
     // Required
-    appName: "You Create Web3 Dapp",
+    appName: "Gasless Staking and Earning Rewards",
 
     // Optional
     appDescription: "Your App Description",
-    appUrl: "https://family.co", // your app's url
+    appUrl: "https://gaslessstakingwithaa.co", // your app's url
     appIcon: "https://family.co/logo.png", // your app's logo,no bigger than 1024x1024px (max. 1MB)
   })
 );
@@ -36,6 +38,7 @@ export default function RootLayout({
           <ConnectKitProvider mode="dark">
             <body>
               <div style={{ display: "flex", flexDirection: "column" }}>
+                <ToastContainer theme="dark"/>
                 {/* <Navbar /> */}
                 {children}
               </div>

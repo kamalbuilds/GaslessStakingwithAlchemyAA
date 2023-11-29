@@ -6,6 +6,8 @@ import { Hash, encodeFunctionData } from 'viem';
 import { useContractRead } from 'wagmi';
 import StakedNFT from '../BatchTransaction/StakedNFT';
 import LoaderSpinner from '../Loader/LoaderSpinner';
+import { toast } from "react-toastify";
+
 const WithdrawNFTs = () => {
 
     const { provider, web3auth, smartWalletAddress } = useContext(AccountAbstractionContext);
@@ -55,9 +57,11 @@ const WithdrawNFTs = () => {
         let txHash: Hash;
         try {
             txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
+            toast.success("Rewards claimed successfully ✅");
             console.log("Tx hash", txHash);
         } catch (e) {
-            console.log("Error in minting", e);
+            toast.error("error in withdrawing NFT")
+            console.log("error in withdrawing NFT", e);
             // setMintStatus("Error Minting");
             // setTimeout(() => {
             //     setMintStatus("Mint");

@@ -4,6 +4,7 @@ import { AlchemyTokenAbi, tokenContractAddress } from '@/constants/tokenContract
 import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import React, { useCallback, useContext, useState } from 'react';
 import { Hash, encodeFunctionData } from 'viem';
+import { toast } from "react-toastify";
 
 type MintStatus =
     | "Mint"
@@ -42,12 +43,13 @@ const MintTokens = () => {
         });
 
         console.log("Uo HAsh", uoHash);
-
+        toast.update("minting going on")
         setMintStatus("Minting");
 
         let txHash: Hash;
         try {
             txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
+            toast.success("Minted token successfully ✨")
             console.log("Tx hash", txHash);
         } catch (e) {
             console.log("Error in minting", e);
