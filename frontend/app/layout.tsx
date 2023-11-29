@@ -7,6 +7,8 @@ import { goerli, sepolia } from "viem/chains";
 import AccountAbstractionContextProvider from "@/context/AccountAbstractionContext";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 const config = createConfig(
   getDefaultConfig({
@@ -36,6 +38,8 @@ export default function RootLayout({
       <AccountAbstractionContextProvider>
         <WagmiConfig config={config}>
           <ConnectKitProvider mode="dark">
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <ThemeSwitcher />
             <body>
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <ToastContainer theme="dark"/>

@@ -1,5 +1,4 @@
-export const tokenContractAddress =
-    "0x54571Bee711bf03269f65D379fDE3ff078d6F786";
+export const tokenContractAddress = "0x54571Bee711bf03269f65D379fDE3ff078d6F786";
 
 export const AlchemyTokenAbi = [
     { inputs: [], stateMutability: "nonpayable", type: "constructor" },
