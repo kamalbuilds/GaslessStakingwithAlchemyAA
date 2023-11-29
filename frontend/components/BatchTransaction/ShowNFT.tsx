@@ -4,6 +4,7 @@ import { StakingNFT, StakeNFTABI } from '@/constants/StakingNFT';
 import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import React, { useContext, useState } from 'react';
 import { Hash, encodeFunctionData } from 'viem';
+import { toast } from "react-toastify";
 
 type MintStatus =
     | "Stake"
@@ -41,7 +42,9 @@ const ShowNFT = ({
             const approveTxData = {
                 target: NFTContract,
                 data: callData
-            }
+            };
+
+            toast.success("Approving NFT");
             console.log("approveTxData data", approveTxData);
 
 
@@ -92,11 +95,12 @@ const ShowNFT = ({
         ]);
 
         console.log("uoHash", uoHash)
-
+        toast.update("minting going on");
         setMintStatus("Staking");
         let txHash: Hash;
         try {
             txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
+            toast.success("NFT Staked successfully ✅");
             console.log("Tx hash", txHash);
         } catch (e) {
             setMintStatus("Error Staking");

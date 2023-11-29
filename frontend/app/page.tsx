@@ -10,6 +10,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState(1);
   const { smartWalletAddress } = useContext(AccountAbstractionContext);
   return (
+    
     <>
       {/* <div>{smartWalletAddress && smartWalletAddress}</div> */}
 
