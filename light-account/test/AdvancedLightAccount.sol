@@ -11,7 +11,7 @@ import {IEntryPoint} from "account-abstraction/interfaces/IEntryPoint.sol";
 import {UserOperation} from "account-abstraction/interfaces/UserOperation.sol";
 import {SimpleAccount} from "account-abstraction/samples/SimpleAccount.sol";
 
-import {LightAccount} from "../src/LightAccount.sol";
+import {AdvancedLightAccount} from "../src/AdvancedLightAccount.sol";
 import {LightAccountFactory} from "../src/LightAccountFactory.sol";
 
 contract LightAccountTest is Test {
@@ -21,8 +21,8 @@ contract LightAccountTest is Test {
     uint256 public constant EOA_PRIVATE_KEY = 1;
     address payable public constant BENEFICIARY = payable(address(0xbe9ef1c1a2ee));
     address public eoaAddress;
-    LightAccount public account;
-    LightAccount public contractOwnedAccount;
+    AdvancedLightAccount public account;
+    AdvancedLightAccount public contractOwnedAccount;
     EntryPoint public entryPoint;
     LightSwitch public lightSwitch;
     Owner public contractOwner;
@@ -82,7 +82,7 @@ contract LightAccountTest is Test {
     }
 
     function testExecuteCannotBeCalledByRandos() public {
-        vm.expectRevert(abi.encodeWithSelector(LightAccount.NotAuthorized.selector, (address(this))));
+        vm.expectRevert(abi.encodeWithSelector(AdvancedLightAccount.NotAuthorized.selector, (address(this))));
         account.execute(address(lightSwitch), 0, abi.encodeCall(LightSwitch.turnOn, ()));
     }
 
@@ -110,7 +110,7 @@ contract LightAccountTest is Test {
         dest[1] = address(lightSwitch);
         bytes[] memory func = new bytes[](1);
         func[0] = abi.encodeCall(LightSwitch.turnOn, ());
-        vm.expectRevert(LightAccount.ArrayLengthMismatch.selector);
+        vm.expectRevert(AdvancedLightAccount.ArrayLengthMismatch.selector);
         account.executeBatch(dest, func);
     }
 
@@ -136,7 +136,7 @@ contract LightAccountTest is Test {
         value[1] = uint256(1 ether);
         bytes[] memory func = new bytes[](1);
         func[0] = abi.encodeCall(LightSwitch.turnOn, ());
-        vm.expectRevert(LightAccount.ArrayLengthMismatch.selector);
+        vm.expectRevert(AdvancedLightAccount.ArrayLengthMismatch.selector);
         account.executeBatch(dest, value, func);
     }
 
@@ -149,7 +149,7 @@ contract LightAccountTest is Test {
 
     function testCannotInitializeWithZeroOwner() public {
         LightAccountFactory factory = new LightAccountFactory(entryPoint);
-        vm.expectRevert(abi.encodeWithSelector(LightAccount.InvalidOwner.selector, (address(0))));
+        vm.expectRevert(abi.encodeWithSelector(AdvancedLightAccount.InvalidOwner.selector, (address(0))));
         account = factory.createAccount(address(0), 1);
     }
 
@@ -169,7 +169,7 @@ contract LightAccountTest is Test {
 
     function testWithdrawDepositToCannotBeCalledByRandos() public {
         account.addDeposit{value: 10}();
-        vm.expectRevert(abi.encodeWithSelector(LightAccount.NotAuthorized.selector, (address(this))));
+        vm.expectRevert(abi.encodeWithSelector(AdvancedLightAccount.NotAuthorized.selector, (address(this))));
         account.withdrawDepositTo(BENEFICIARY, 5);
     }
 
@@ -185,7 +185,7 @@ contract LightAccountTest is Test {
     function testEntryPointCanTransferOwnership() public {
         address newOwner = address(0x100);
         UserOperation memory op =
-            _getSignedOp(address(account), abi.encodeCall(LightAccount.transferOwnership, (newOwner)), EOA_PRIVATE_KEY);
+            _getSignedOp(address(account), abi.encodeCall(AdvancedLightAccount.transferOwnership, (newOwner)), EOA_PRIVATE_KEY);
         UserOperation[] memory ops = new UserOperation[](1);
         ops[0] = op;
         vm.expectEmit(true, true, false, false);
@@ -195,25 +195,25 @@ contract LightAccountTest is Test {
     }
 
     function testRandosCannotTransferOwnership() public {
-        vm.expectRevert(abi.encodeWithSelector(LightAccount.NotAuthorized.selector, (address(this))));
+        vm.expectRevert(abi.encodeWithSelector(AdvancedLightAccount.NotAuthorized.selector, (address(this))));
         account.transferOwnership(address(0x100));
     }
 
     function testCannotTransferOwnershipToCurrentOwner() public {
         vm.prank(eoaAddress);
-        vm.expectRevert(abi.encodeWithSelector(LightAccount.InvalidOwner.selector, (eoaAddress)));
+        vm.expectRevert(abi.encodeWithSelector(AdvancedLightAccount.InvalidOwner.selector, (eoaAddress)));
         account.transferOwnership(eoaAddress);
     }
 
     function testCannotTransferOwnershipToZero() public {
         vm.prank(eoaAddress);
-        vm.expectRevert(abi.encodeWithSelector(LightAccount.InvalidOwner.selector, (address(0))));
+        vm.expectRevert(abi.encodeWithSelector(AdvancedLightAccount.InvalidOwner.selector, (address(0))));
         account.transferOwnership(address(0));
     }
 
     function testCannotTransferOwnershipToLightContractItself() public {
         vm.prank(eoaAddress);
-        vm.expectRevert(abi.encodeWithSelector(LightAccount.InvalidOwner.selector, (address(account))));
+        vm.expectRevert(abi.encodeWithSelector(AdvancedLightAccount.InvalidOwner.selector, (address(account))));
         account.transferOwnership(address(account));
     }
 
@@ -256,7 +256,7 @@ contract LightAccountTest is Test {
         // Try to upgrade to a normal SimpleAccount with a different entry point.
         IEntryPoint newEntryPoint = IEntryPoint(address(0x2000));
         SimpleAccount newImplementation = new SimpleAccount(newEntryPoint);
-        vm.expectRevert(abi.encodeWithSelector(LightAccount.NotAuthorized.selector, (address(this))));
+        vm.expectRevert(abi.encodeWithSelector(AdvancedLightAccount.NotAuthorized.selector, (address(this))));
         account.upgradeToAndCall(address(newImplementation), abi.encodeCall(SimpleAccount.initialize, (address(this))));
     }
 
@@ -299,7 +299,7 @@ contract LightAccountTest is Test {
             sender: address(account),
             nonce: 0,
             initCode: "",
-            callData: abi.encodeCall(LightAccount.execute, (target, 0, innerCallData)),
+            callData: abi.encodeCall(AdvancedLightAccount.execute, (target, 0, innerCallData)),
             callGasLimit: 1 << 24,
             verificationGasLimit: 1 << 24,
             preVerificationGas: 1 << 24,

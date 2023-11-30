@@ -6,19 +6,19 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 
 import {IEntryPoint} from "account-abstraction/interfaces/IEntryPoint.sol";
 
-import {LightAccount} from "./LightAccount.sol";
+import {AdvancedLightAccount} from "./AdvancedLightAccount.sol";
 
 /**
- * @title A factory contract for LightAccount
+ * @title A factory contract for AdvancedLightAccount
  * @dev A UserOperations "initCode" holds the address of the factory, and a method call (to createAccount, in this sample factory).
  * The factory's createAccount returns the target account address even if it is already installed.
  * This way, the entryPoint.getSenderAddress() can be called either before or after the account is created.
  */
 contract LightAccountFactory {
-    LightAccount public immutable accountImplementation;
+    AdvancedLightAccount public accountImplementation;
 
     constructor(IEntryPoint _entryPoint) {
-        accountImplementation = new LightAccount(_entryPoint);
+        accountImplementation = new AdvancedLightAccount(_entryPoint);
     }
 
     /**
@@ -30,17 +30,17 @@ contract LightAccountFactory {
      * @param salt A salt, which can be changed to create multiple accounts with the same owner
      * @return ret The address of either the newly deployed account or an existing account with this owner and salt
      */
-    function createAccount(address owner, uint256 salt) public returns (LightAccount ret) {
+    function createAccount(address owner, uint256 salt) public returns (AdvancedLightAccount ret) {
         address addr = getAddress(owner, salt);
         uint256 codeSize = addr.code.length;
         if (codeSize > 0) {
-            return LightAccount(payable(addr));
+            return AdvancedLightAccount(payable(addr));
         }
-        ret = LightAccount(
+        ret = AdvancedLightAccount(
             payable(
                 new ERC1967Proxy{salt : bytes32(salt)}(
                     address(accountImplementation),
-                    abi.encodeCall(LightAccount.initialize, (owner))
+                    abi.encodeCall(AdvancedLightAccount.initialize, (owner))
                 )
             )
         );
@@ -58,7 +58,7 @@ contract LightAccountFactory {
             keccak256(
                 abi.encodePacked(
                     type(ERC1967Proxy).creationCode,
-                    abi.encode(address(accountImplementation), abi.encodeCall(LightAccount.initialize, (owner)))
+                    abi.encode(address(accountImplementation), abi.encodeCall(AdvancedLightAccount.initialize, (owner)))
                 )
             )
         );

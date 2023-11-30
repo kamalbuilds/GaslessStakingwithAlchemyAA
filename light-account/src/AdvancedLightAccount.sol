@@ -48,7 +48,7 @@ import {CustomSlotInitializable} from "./CustomSlotInitializable.sol";
  *
  * 5. Uses custom errors.
  */
-contract LightAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, CustomSlotInitializable, IERC1271 {
+contract AdvancedLightAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, CustomSlotInitializable, IERC1271  {
     using ECDSA for bytes32;
 
     // keccak256(abi.encode(uint256(keccak256("light_account_v1.storage")) - 1)) & ~bytes32(uint256(0xff));
