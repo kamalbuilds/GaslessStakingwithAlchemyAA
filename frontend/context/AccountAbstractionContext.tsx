@@ -6,7 +6,6 @@ import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
 import { WalletConnectV2Adapter, getWalletConnectV2Settings } from "@web3auth/wallet-connect-v2-adapter";
 import { MetamaskAdapter } from "@web3auth/metamask-adapter";
 import { TorusWalletAdapter } from "@web3auth/torus-evm-adapter";
-import RPC from "@/components/web3RPC"; // for using ethers.js
 import { createWalletClient, custom } from "viem";
 import { SmartAccountSigner, WalletClientSigner } from "@alchemy/aa-core";
 import { useAlchemyProvider } from "@/hooks/useAlchemyProvider";
@@ -22,7 +21,6 @@ type IAccountAbstractionContext = {
     handleLogin: () => void,
     handleLogOut: () => void,
     getUserInfo: () => void,
-    getAccounts: () => void
 }
 
 const defaultUnset: any = null;
@@ -35,8 +33,7 @@ const initialValue = {
     setLoggedIn: () => { },
     handleLogin: () => { },
     handleLogOut: () => { },
-    getUserInfo: () => { },
-    getAccounts: () => { }
+    getUserInfo: () => { }
 }
 
 export const AccountAbstractionContext = createContext<IAccountAbstractionContext>(initialValue);
@@ -209,16 +206,6 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
         }
     }
 
-    const getAccounts = async () => {
-        if (!web3auth?.provider) {
-            console.log("provider not initialized yet");
-            return;
-        }
-        const rpc = new RPC(web3auth.provider as IProvider);
-        const address = await rpc.getAccounts();
-        console.log("address", address);
-    };
-
     return (
         <AccountAbstractionContext.Provider value={{
             web3auth,
@@ -228,8 +215,7 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
             setLoggedIn,
             handleLogin,
             handleLogOut,
-            getUserInfo,
-            getAccounts
+            getUserInfo
         }}>
             {children}
         </AccountAbstractionContext.Provider>
