@@ -8,6 +8,7 @@ import Image from 'next/image';
 import LoaderSpinner from '../Loader/LoaderSpinner';
 import { toast } from 'react-toastify';
 import AddressLabel from '../AddressLabel/AddressLabel';
+import { GlobalContext } from '@/context/GlobalContext';
 
 type MintStatus =
     | "Mint"
@@ -49,8 +50,6 @@ const MintNFT = () => {
             web3Provider,
         )
 
-        console.log("Contract", contract, web3Provider)
-
         const minTx = await contract.populateTransaction['claim'](
             receiver,
             quantity,
@@ -59,8 +58,6 @@ const MintNFT = () => {
             allowProof,
             data
         )
-        console.log("minTx", minTx.data, provider);
-
         return minTx.data;
     }
 
@@ -132,6 +129,42 @@ const MintNFT = () => {
         }
     }, [])
 
+    // const {checkIfEligibileForGas} = useContext(GlobalContext)
+
+    const checkEligibility = async () => {
+
+        if (web3auth?.provider == null) {
+            throw new Error("web3auth provider is available");
+        }
+
+        try {
+            const data = await encodeTransactionData();
+
+            const GAS_MANAGER_POLICY_ID = "9cb0aa63-7c79-4924-9e18-8eba4d3db391";
+
+            provider.withAlchemyGasManager({
+                policyId: GAS_MANAGER_POLICY_ID,
+            });
+
+            const elligibility = await provider.checkGasSponsorshipEligibility({
+                target: NFTContract,
+                data: data,
+            });
+            console.log("elligibility", elligibility)
+
+
+
+            // console.log(
+            //     `User Operation is ${eligible ? "eligible" : "ineligible"
+            //     } for gas sponsorship`
+            // );
+        } catch (error) {
+            console.log("Error", error);
+        }
+
+
+    }
+
     const mintNFTGasless = async () => {
 
         if (web3auth?.provider == null) {
@@ -141,7 +174,7 @@ const MintNFT = () => {
 
             const data = await encodeTransactionData();
 
-            const GAS_MANAGER_POLICY_ID = "YourGasManagerPolicyId";
+            const GAS_MANAGER_POLICY_ID = "9cb0aa63-7c79-4924-9e18-8eba4d3db391";
 
             provider.withAlchemyGasManager({
                 policyId: GAS_MANAGER_POLICY_ID,
@@ -164,10 +197,7 @@ const MintNFT = () => {
             } catch (e) {
                 toast.error("Error in minting");
                 console.log("Error in minting", e);
-                // setMintStatus("Error Minting");
-                // setTimeout(() => {
-                //     setMintStatus("Mint");
-                // }, 5000);
+
                 return;
             }
         }
@@ -175,6 +205,8 @@ const MintNFT = () => {
 
 
     }
+
+
 
     return (
         <div>
@@ -197,6 +229,17 @@ const MintNFT = () => {
                         <LoaderSpinner color={"#FFF"} size={20} loading={true} />
                     ) : `${mintStatus} NFT`}
                 </button>
+
+
+
+                <button onClick={checkEligibility}
+                    // disabled={mintStatus !== "Mint"}
+                    className='rounded-md flex flex-row items-center justify-center min-w-[150px] bg-blue-700 text-white hover:bg-blue-900 px-4 py-2 '
+                >
+                    Check Eligibility for Gas
+                </button>
+
+
                 <button onClick={mintNFTGasless}
                     className='rounded-md min-w-[150px] border border-blue-700 hover:bg-blue-700 hover:text-white px-4 py-2 '>
                     Mint NFT Gasless
@@ -204,7 +247,7 @@ const MintNFT = () => {
             </div>
 
             <div className='text-[24px] mt-[24px]'>Minted NFTs</div>
-            <div className='text-[16px] my-4 font-light text-gray-500'>NFTs that you have minted and own</div>
+            <div className='text-[16px] my-4 font-light text-gray-500'>NFTs that you have minted and not staked. Stake Now and Earn rewards based on time.</div>
 
             {loadingNFTs ? (
                 <div className='flex flex-row items-center justify-center'>

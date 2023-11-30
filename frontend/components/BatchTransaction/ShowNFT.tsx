@@ -16,11 +16,13 @@ type MintStatus =
 
 const ShowNFT = ({
     nft,
-    setMintTxHash
+    setMintTxHash,
+    fetchNFTs
 }: any) => {
 
     const { web3auth, smartWalletAddress, provider } = useContext(AccountAbstractionContext);
     const [isStaking, setIsStaking] = useState(false);
+    const [stakingGasless, setStakingGasless] = useState(false);
 
     const approveNFT = async (tokenId: any) => {
         if (web3auth?.provider == null) {
@@ -79,6 +81,7 @@ const ShowNFT = ({
             txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
             toast.success("NFT Staked successfully ✅");
             setIsStaking(false);
+            fetchNFTs();
         } catch (e) {
             console.log("Error in minting", e);
             setIsStaking(false);
@@ -86,6 +89,90 @@ const ShowNFT = ({
         }
 
         setMintTxHash(txHash);
+
+    }
+
+    const stakeGasless = async (tokenId: any) => {
+
+        if (!provider) {
+            throw new Error("Provider not initialized");
+        }
+
+        setMintTxHash(undefined);
+        setStakingGasless(true);
+        const approveCallData = await approveNFT(tokenId);
+        const stakeCallData = await stakeNFT(tokenId);
+
+        const GAS_MANAGER_POLICY_ID = "9cb0aa63-7c79-4924-9e18-8eba4d3db391";
+
+        provider.withAlchemyGasManager({
+            policyId: GAS_MANAGER_POLICY_ID,
+        });
+
+        console.log("Data", approveCallData, stakeCallData, provider)
+
+        const elligibility = await provider.checkGasSponsorshipEligibility([
+            approveCallData, stakeCallData
+        ]);
+        console.log("elligibility", elligibility)
+
+        const overrides = { paymasterAndData: "0x" };
+
+        const uoHash = await provider.sendUserOperation([
+            // @ts-ignore
+            approveCallData, stakeCallData,
+        ],
+            { overrides: elligibility ? undefined : overrides }
+
+        );
+
+        toast.update("minting going on");
+        let txHash: Hash;
+        try {
+            txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
+            toast.success("NFT Staked successfully ✅");
+            fetchNFTs();
+            setStakingGasless(false);
+
+        } catch (e) {
+            console.log("Error in minting", e);
+            setStakingGasless(false);
+            return;
+        }
+
+        setMintTxHash(txHash);
+
+    }
+
+    const checkEligibility = async (tokenId: any) => {
+
+        if (web3auth?.provider == null) {
+            throw new Error("web3auth provider is available");
+        }
+
+        try {
+            const approveCallData = await approveNFT(tokenId);
+            const stakeCallData = await stakeNFT(tokenId);
+
+            const GAS_MANAGER_POLICY_ID = "9cb0aa63-7c79-4924-9e18-8eba4d3db391";
+
+            provider.withAlchemyGasManager({
+                policyId: GAS_MANAGER_POLICY_ID,
+            });
+
+            console.log("Data", approveCallData, stakeCallData, provider)
+
+            const elligibility = await provider.checkGasSponsorshipEligibility([
+                approveCallData, stakeCallData
+            ]);
+            console.log("elligibility", elligibility)
+            toast.success("You are eligibile for gasless sponsership");
+
+        } catch (error) {
+            console.log("Error", error);
+            toast.error("You are not eligibile for gasless sponsership");
+        }
+
 
     }
 
@@ -111,18 +198,41 @@ const ShowNFT = ({
             </div>
 
 
-            <div className='flex flex-row gap-4 justify-center mt-[20px]'>
+            <div className='flex flex-col gap-4 justify-center mt-[20px]'>
 
-                <button
-                    disabled={isStaking}
-                    onClick={() => handleStakeBatch(nft.tokenId)}
-                    className='rounded-md flex flex-row items-center justify-center min-w-[250px] bg-blue-700 text-white hover:bg-blue-900 px-4 py-2 '
-                >
-                    {!isStaking && `Stake ${nft.name} NFT`}
-                    {isStaking && (
-                        <LoaderSpinner color={"#FFF"} size={25} loading={true} />
-                    )}
-                </button>
+                <div className='flex flex-col items-center gap-4'>
+                    <button
+                        disabled={isStaking}
+                        onClick={() => handleStakeBatch(nft.tokenId)}
+                        className='rounded-md flex flex-row items-center justify-center min-w-[250px] bg-blue-700 text-white hover:bg-blue-900 px-4 py-2 '
+                    >
+                        {!isStaking && `Stake ${nft.name} NFT`}
+                        {isStaking && (
+                            <LoaderSpinner color={"#FFF"} size={25} loading={true} />
+                        )}
+                    </button>
+
+                    <button
+                        disabled={stakingGasless}
+                        onClick={() => stakeGasless(nft.tokenId)}
+                        className='rounded-md flex flex-row items-center justify-center min-w-[250px] bg-blue-700 text-white hover:bg-blue-900 px-4 py-2 '
+                    >
+                        {!stakingGasless && `Stake ${nft.name} NFT Gasless`}
+                        {stakingGasless && (
+                            <LoaderSpinner color={"#FFF"} size={25} loading={true} />
+                        )}
+                    </button>
+
+                    <button
+                        onClick={() => checkEligibility(nft.tokenId)}
+                        className='rounded-md flex flex-row items-center justify-center min-w-[250px] bg-blue-700 text-white hover:bg-blue-900 px-4 py-2 '
+                    >
+                        Check Eligibility
+                    </button>
+
+                </div>
+
+
             </div>
         </div>
     );

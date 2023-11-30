@@ -15,25 +15,23 @@ const MintAndStakeNFT = () => {
     const [loadingNFTs, setLoadingNFTs] = useState(false);
     const [mintTxHash, setMintTxHash] = useState<Hash>();
 
-    let fetchNFTs: () => void;
+    const fetchNFTs = async () => {
+        setLoadingNFTs(true);
+        try {
+            // @ts-ignore
+            const nfts = await provider.nft.getNftsForOwner(smartWalletAddress);
+            const { ownedNfts } = nfts;
+            setOwnedNFTs(ownedNfts);
+            setLoadingNFTs(false);
+        } catch (error) {
+            console.log("Error", error);
+            setLoadingNFTs(false);
+        }
+
+    }
 
     useEffect(() => {
         if (provider) {
-            fetchNFTs = async () => {
-                setLoadingNFTs(true);
-                try {
-                    // @ts-ignore
-                    const nfts = await provider.nft.getNftsForOwner(smartWalletAddress);
-                    const { ownedNfts } = nfts;
-                    setOwnedNFTs(ownedNfts);
-                    setLoadingNFTs(false);
-                } catch (error) {
-                    console.log("Error", error);
-                    setLoadingNFTs(false);
-                }
-
-            }
-
             fetchNFTs();
         }
     }, [provider])
@@ -75,6 +73,7 @@ const MintAndStakeNFT = () => {
                                             <ShowNFT
                                                 nft={nft}
                                                 setMintTxHash={setMintTxHash}
+                                                fetchNFTs={fetchNFTs}
                                             />
                                         </>
                                     )

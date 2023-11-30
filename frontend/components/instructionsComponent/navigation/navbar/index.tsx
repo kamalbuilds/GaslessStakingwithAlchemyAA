@@ -13,7 +13,7 @@ import useMemoizedAddressLabel from "@/hooks/useMemoizedAddressLabel";
 
 export default function Navbar() {
 
-  const { handleLogin, web3auth, smartWalletAddress, loggedIn, setLoggedIn, handleLogOut, getUserInfo, getAccounts } = useContext(AccountAbstractionContext);
+  const { handleLogin, web3auth, smartWalletAddress, loggedIn, setLoggedIn, handleLogOut, getUserInfo } = useContext(AccountAbstractionContext);
 
   const { provider, connectProviderToAccount, disconnectProviderFromAccount } =
     useAlchemyProvider({ entryPointAddress });

@@ -1,12 +1,8 @@
 import { createContext, useEffect, useState } from "react";
-import { Web3Auth, Web3AuthOptions } from "@web3auth/modal";
+import { Web3Auth } from "@web3auth/modal";
 import { TorusWalletConnectorPlugin } from "@web3auth/torus-wallet-connector-plugin";
-import { CHAIN_NAMESPACES, IProvider, WALLET_ADAPTERS, WEB3AUTH_NETWORK } from "@web3auth/base";
-import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
-import { WalletConnectV2Adapter, getWalletConnectV2Settings } from "@web3auth/wallet-connect-v2-adapter";
+import { CHAIN_NAMESPACES, WALLET_ADAPTERS, WEB3AUTH_NETWORK } from "@web3auth/base";
 import { MetamaskAdapter } from "@web3auth/metamask-adapter";
-import { TorusWalletAdapter } from "@web3auth/torus-evm-adapter";
-import RPC from "@/components/web3RPC"; // for using ethers.js
 import { createWalletClient, custom } from "viem";
 import { SmartAccountSigner, WalletClientSigner } from "@alchemy/aa-core";
 import { useAlchemyProvider } from "@/hooks/useAlchemyProvider";
@@ -21,8 +17,7 @@ type IAccountAbstractionContext = {
     setLoggedIn: (loggedIn: boolean) => void,
     handleLogin: () => void,
     handleLogOut: () => void,
-    getUserInfo: () => void,
-    getAccounts: () => void
+    getUserInfo: () => void
 }
 
 const defaultUnset: any = null;
@@ -35,8 +30,7 @@ const initialValue = {
     setLoggedIn: () => { },
     handleLogin: () => { },
     handleLogOut: () => { },
-    getUserInfo: () => { },
-    getAccounts: () => { }
+    getUserInfo: () => { }
 }
 
 export const AccountAbstractionContext = createContext<IAccountAbstractionContext>(initialValue);
@@ -53,8 +47,8 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
     const { provider, connectProviderToAccount, disconnectProviderFromAccount } =
         useAlchemyProvider({ entryPointAddress });
 
-    const clientId = process.env.WEB3AUTH_CLIENT_ID || 'BGvAr_C1nDyVklXpNYMvvgRcY4Qhzo3UCf7eCKDGFYL_ZlJV3BBCfA_udcVxsOgjvJb8lcCylu-Us36aG6R6-cc';
-
+    const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID || 'BMtPIaYeIRpEhgQOl_3pnMfQ3JzAejuigCdYLfAFk8YnultR0QgOMYcfHAgS4PQKiNMWzNRspQAMZ2N_wSLeg7o';
+    const rpcTarget = process.env.NEXT_PUBLIC_ALCHEMY_RPC_URL || "https://eth-sepolia.g.alchemy.com/v2/EGlJwOf582RNqCUcxTiiy8_XGRGGsx-h"
 
     useEffect(() => {
         const init = async () => {
@@ -65,42 +59,42 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
                         chainNamespace: CHAIN_NAMESPACES.EIP155,
                         chainId: "0xaa36a7",
                         blockExplorer: 'https://sepolia.etherscan.io',
-                        rpcTarget: "https://eth-sepolia.g.alchemy.com/v2/EGlJwOf582RNqCUcxTiiy8_XGRGGsx-h", // This is the public RPC we have added, please pass on your own endpoint while creating an app
+                        rpcTarget: rpcTarget,
                     },
                     uiConfig: {
-                        appName: "W3A",
+                        appName: "Gasless Staking",
                         theme: {
-                            primary: "red",
+                            primary: "Blue",
                         },
                         mode: "dark",
                         logoLight: "https://web3auth.io/images/web3auth-logo.svg",
                         logoDark: "https://web3auth.io/images/web3auth-logo---Dark.svg",
-                        defaultLanguage: "en", // en, de, ja, ko, zh, es, fr, pt, nl
+                        defaultLanguage: "en",
                         loginGridCol: 3,
-                        primaryButton: "externalLogin", // "externalLogin" | "socialLogin" | "emailLogin"
+                        primaryButton: "externalLogin",
                     },
                     web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
                 });
 
                 const metamaskAdapter = new MetamaskAdapter({
                     clientId,
-                    sessionTime: 86400, // 1 hour in seconds
+                    sessionTime: 86400,
                     web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
                     chainConfig: {
                         chainNamespace: CHAIN_NAMESPACES.EIP155,
                         chainId: "0xaa36a7",
                         blockExplorer: 'https://sepolia.etherscan.io',
-                        rpcTarget: "https://eth-sepolia.g.alchemy.com/v2/EGlJwOf582RNqCUcxTiiy8_XGRGGsx-h", // This is the public RPC we have added, please pass on your own endpoint while creating an app
+                        rpcTarget: rpcTarget,
                     },
                 });
-                // we can change the above settings using this function
+
                 metamaskAdapter.setAdapterSettings({
-                    sessionTime: 86400, // 1 day in seconds
+                    sessionTime: 86400,
                     chainConfig: {
                         chainNamespace: CHAIN_NAMESPACES.EIP155,
                         chainId: "0xaa36a7",
                         blockExplorer: 'https://sepolia.etherscan.io',
-                        rpcTarget: "https://eth-sepolia.g.alchemy.com/v2/EGlJwOf582RNqCUcxTiiy8_XGRGGsx-h", // This is the public RPC we have added, please pass on your own endpoint while creating an app
+                        rpcTarget: rpcTarget,
                     },
                     web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
                 });
@@ -109,7 +103,6 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
 
                 setWeb3auth(web3auth);
 
-                // await web3auth.initModal();
                 await web3auth.initModal({
                     modalConfig: {
                         [WALLET_ADAPTERS.WALLET_CONNECT_V2]: {
@@ -209,15 +202,6 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
         }
     }
 
-    const getAccounts = async () => {
-        if (!web3auth?.provider) {
-            console.log("provider not initialized yet");
-            return;
-        }
-        const rpc = new RPC(web3auth.provider as IProvider);
-        const address = await rpc.getAccounts();
-        console.log("address", address);
-    };
 
     return (
         <AccountAbstractionContext.Provider value={{
@@ -229,7 +213,7 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
             handleLogin,
             handleLogOut,
             getUserInfo,
-            getAccounts
+
         }}>
             {children}
         </AccountAbstractionContext.Provider>

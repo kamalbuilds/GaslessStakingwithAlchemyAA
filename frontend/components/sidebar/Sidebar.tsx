@@ -12,9 +12,6 @@ const Sidebar = ({
     setActiveTab
 }: any) => {
 
-    const { smartWalletAddress } = useContext(AccountAbstractionContext);
-
-
     const isActive = (tab: any) => {
         if (activeTab == tab) {
             return true;
