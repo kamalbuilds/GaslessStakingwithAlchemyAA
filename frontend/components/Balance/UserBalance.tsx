@@ -1,8 +1,8 @@
 'use client'
-import { LightAccountABI } from '@/constants/LightAccount';
-import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import { ethers } from 'ethers';
 import React, { useContext, useEffect, useState } from 'react';
+import { LightAccountABI } from '@/constants/LightAccount';
+import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 
 const UserBalance = () => {
 
@@ -17,7 +17,6 @@ const UserBalance = () => {
                     // @ts-ignore
                     const res = await provider.core.getBalance(smartWalletAddress);
                     const response = parseFloat(ethers.utils.formatEther(res))
-                    console.log("Response", response)
                     setTokenBalance(response);
                 } catch (error) {
                     console.log("Error", error)
@@ -44,8 +43,6 @@ const UserBalance = () => {
                 LightAccountABI,
                 web3Provider,
             )
-
-            console.log("COntract", contract);
 
             try {
                 const res = await contract.getDeposit();

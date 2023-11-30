@@ -20,10 +20,6 @@ export default function Navbar() {
 
   const address = smartWalletAddress && `${smartWalletAddress.slice(0, 6) + '....' + smartWalletAddress.slice(smartWalletAddress.length - 6)}`;
 
-  console.log("loggedIn", loggedIn);
-
-  console.log("provider", provider, provider.isConnected());
-
   return (
     <nav className="flex flex-row gap-4 justify-between pt-4 px-8">
 

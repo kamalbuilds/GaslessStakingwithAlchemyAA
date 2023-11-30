@@ -29,19 +29,14 @@ export const useStakingContract = ({
 
     const getStakingInfo = useCallback(
         async (address: any) => {
-            console.log("Contract", contract, address)
             const res = await contract.getStakeInfo(address);
-            console.log("Staking Info", res)
 
             const { _rewards, _tokensStaked } = res;
             const nftTokenIds = _tokensStaked.map((token: any) => {
                 const tokenNumber = Number(token);
-                console.log("TOken Number", tokenNumber)
                 return tokenNumber
             })
             const rewardNumber = Number(_rewards);
-
-            console.log("Number", rewardNumber, nftTokenIds);
 
             return { rewardNumber, nftTokenIds };
         },

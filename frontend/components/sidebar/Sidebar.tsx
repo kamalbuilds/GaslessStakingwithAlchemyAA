@@ -22,7 +22,6 @@ const Sidebar = ({
 
     return (
         <div className='w-[25%] p-[10px]'>
-            <div className='text-[26px] pt-[10px] mb-[20px]'>Gasless Staking</div>
 
             <div className='mx-[10px] pt-[13px]'>
                 <div className='flex flex-col gap-4'>

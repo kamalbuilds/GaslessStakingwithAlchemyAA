@@ -22,8 +22,6 @@ export const useAlchemyProvider = ({
   const alchemyAPIKey = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || 'EGlJwOf582RNqCUcxTiiy8_XGRGGsx-h';
   const alchemyRPCUrl = process.env.NEXT_PUBLIC_ALCHEMY_RPC_URL || "https://eth-sepolia.g.alchemy.com/v2/EGlJwOf582RNqCUcxTiiy8_XGRGGsx-h"
 
-  console.log("ENV", alchemyAPIKey)
-
   const alchemy = new Alchemy({
     network: Network.ETH_SEPOLIA,
     apiKey: alchemyAPIKey,
@@ -52,7 +50,6 @@ export const useAlchemyProvider = ({
             accountAddress: account,
           });
         })
-      console.log("connectedProvider", connectedProvider)
       setProvider(connectedProvider);
       return connectedProvider;
     },

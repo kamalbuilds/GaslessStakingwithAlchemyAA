@@ -99,8 +99,6 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
                     web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
                 });
 
-                console.log("Web3Auth", web3auth, web3auth.connected);
-
                 setWeb3auth(web3auth);
 
                 await web3auth.initModal({
@@ -114,7 +112,6 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
                 });
 
                 if (web3auth.connected) {
-                    console.log("Web3Auth.Connected", web3auth, web3auth.connected);
                     if (web3auth.provider == null) {
                         throw new Error("web3auth provider is available");
                     }
@@ -127,7 +124,6 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
                         "web3auth"
                     );
 
-                    console.log("web3authSigner", web3authSigner)
                     connectProviderToAccount(web3authSigner);
                     const address = await provider.getAddress();
                     setSmartWalletAddress(address);
@@ -148,7 +144,6 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
         }
 
         try {
-            console.log("Web3Auth in log in ", web3auth);
             await web3auth.connect();
 
             if (web3auth.provider == null) {
@@ -164,12 +159,10 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
                 "web3auth"
             );
 
-            console.log("web3authSigner", web3authSigner)
             connectProviderToAccount(web3authSigner);
 
             const address = await provider.getAddress();
             setSmartWalletAddress(address);
-            console.log("address", address)
 
             setLoggedIn(true);
         } catch (error) {
@@ -183,7 +176,6 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
             return;
         }
         const user = await web3auth.getUserInfo();
-        console.log("user Info", user);
     };
 
     const handleLogOut = async () => {
