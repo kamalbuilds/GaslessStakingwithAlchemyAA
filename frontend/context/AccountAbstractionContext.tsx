@@ -17,7 +17,7 @@ type IAccountAbstractionContext = {
     setLoggedIn: (loggedIn: boolean) => void,
     handleLogin: () => void,
     handleLogOut: () => void,
-    getUserInfo: () => void
+    getUserInfo: () => void,
 }
 
 const defaultUnset: any = null;
@@ -202,7 +202,6 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
         }
     }
 
-
     return (
         <AccountAbstractionContext.Provider value={{
             web3auth,
@@ -212,8 +211,7 @@ const AccountAbstractionContextProvider = ({ children }: any) => {
             setLoggedIn,
             handleLogin,
             handleLogOut,
-            getUserInfo,
-
+            getUserInfo
         }}>
             {children}
         </AccountAbstractionContext.Provider>

@@ -11,9 +11,9 @@ const ShowStakedNFT = () => {
     const { web3auth, smartWalletAddress, provider } = useContext(AccountAbstractionContext);
 
     const [ownedNFTs, setOwnedNFTs] = useState();
-
+    // @ts-ignore
     const { getStakingInfo } = useStakingContract({ web3auth });
-    const [stakedNFTTokenIds, showStakedNFTTokenIds] = useState();
+    const [stakedNFTTokenIds, showStakedNFTTokenIds] = useState([]);
 
     useEffect(() => {
 

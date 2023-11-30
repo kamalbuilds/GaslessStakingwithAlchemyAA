@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client'
 import { NFTABI, NFTContract } from '@/constants/PokemonNFT';
 import { StakeNFTABI, StakingNFT } from '@/constants/StakingNFT';
