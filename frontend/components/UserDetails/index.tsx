@@ -1,15 +1,14 @@
 // @ts-nocheck
 "use client";
-import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
-import { LightSmartContractAccount } from '@alchemy/aa-accounts';
 import React, { useContext, useEffect, useState } from 'react';
-import { toast } from "react-toastify";
-import AddressLabel from '../AddressLabel/AddressLabel';
 import LoaderSpinner from '../Loader/LoaderSpinner';
+import AddressLabel from '../AddressLabel/AddressLabel';
+import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
+
 
 const UserDetails = () => {
 
-    const { provider, smartWalletAddress, getUserInfo } = useContext(AccountAbstractionContext);
+    const { provider, smartWalletAddress } = useContext(AccountAbstractionContext);
 
     const [isDeployed, setIsDeployed] = useState();
     const [ownerAddress, setOwnerAddress] = useState();
@@ -33,11 +32,6 @@ const UserDetails = () => {
         }
 
     }, [provider, provider.account])
-
-
-    console.log("is Deployed", isDeployed)
-
-
 
 
     return (

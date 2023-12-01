@@ -2,12 +2,12 @@
 'use client'
 import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import React, { useContext, useEffect, useState } from 'react';
-import ShowNFT from './ShowNFT';
 import LoaderSpinner from '../Loader/LoaderSpinner';
 import AddressLabel from '../AddressLabel/AddressLabel';
 import { Hash } from 'viem';
+import RenderNFTs from './RenderNFTs';
 
-const MintAndStakeNFT = () => {
+const index = () => {
 
     const { web3auth, smartWalletAddress, provider } = useContext(AccountAbstractionContext);
 
@@ -15,30 +15,26 @@ const MintAndStakeNFT = () => {
     const [loadingNFTs, setLoadingNFTs] = useState(false);
     const [mintTxHash, setMintTxHash] = useState<Hash>();
 
-    let fetchNFTs: () => void;
+    const fetchNFTs = async () => {
+        setLoadingNFTs(true);
+        try {
+            // @ts-ignore
+            const nfts = await provider.nft.getNftsForOwner(smartWalletAddress);
+            const { ownedNfts } = nfts;
+            setOwnedNFTs(ownedNfts);
+            setLoadingNFTs(false);
+        } catch (error) {
+            console.log("Error", error);
+            setLoadingNFTs(false);
+        }
+
+    }
 
     useEffect(() => {
         if (provider) {
-            fetchNFTs = async () => {
-                setLoadingNFTs(true);
-                try {
-                    // @ts-ignore
-                    const nfts = await provider.nft.getNftsForOwner(smartWalletAddress);
-                    const { ownedNfts } = nfts;
-                    setOwnedNFTs(ownedNfts);
-                    setLoadingNFTs(false);
-                } catch (error) {
-                    console.log("Error", error);
-                    setLoadingNFTs(false);
-                }
-
-            }
-
             fetchNFTs();
         }
     }, [provider])
-
-    console.log("ownedNFTs", ownedNFTs)
 
     return (
         <div>
@@ -59,7 +55,7 @@ const MintAndStakeNFT = () => {
                 </div>
             </div>}
 
-            <div className='min-w-[300px] min-h-[300px] overflow-scroll	px-[20px] pl-0 mt-[20px]'>
+            <div className='min-w-[300px] min-h-[300px] px-[20px] pl-0 mt-[20px]'>
                 {loadingNFTs ? (
                     <div className='min-h-[350px] flex items-center justify-center'>
                         <LoaderSpinner loading={true} />
@@ -68,13 +64,14 @@ const MintAndStakeNFT = () => {
                     <div>
 
                         {(ownedNFTs?.length > 0) ? (
-                            <div className='flex flex-row gap-4 overflow-scroll py-[20px]'>
+                            <div className='flex flex-row gap-4  py-[20px]'>
                                 {ownedNFTs && ownedNFTs.map((nft) => {
                                     return (
                                         <>
-                                            <ShowNFT
+                                            <RenderNFTs
                                                 nft={nft}
                                                 setMintTxHash={setMintTxHash}
+                                                fetchNFTs={fetchNFTs}
                                             />
                                         </>
                                     )
@@ -93,4 +90,4 @@ const MintAndStakeNFT = () => {
     );
 };
 
-export default MintAndStakeNFT;
+export default index;

@@ -4,12 +4,13 @@ import { useStakingContract } from '@/hooks/useContract';
 import React, { useContext, useEffect, useState } from 'react';
 import { Hash, encodeFunctionData } from 'viem';
 import { useContractRead } from 'wagmi';
-import StakedNFT from '../BatchTransaction/StakedNFT';
+import StakedNFT from './StakedNFT';
 import LoaderSpinner from '../Loader/LoaderSpinner';
 import { toast } from "react-toastify";
 import AddressLabel from '../AddressLabel/AddressLabel';
+import { GlobalContext } from '@/context/GlobalContext';
 
-const WithdrawNFTs = () => {
+const index = () => {
 
     const { provider, web3auth, smartWalletAddress } = useContext(AccountAbstractionContext);
     // @ts-ignore
@@ -19,6 +20,8 @@ const WithdrawNFTs = () => {
     const [isClaiming, setIsClaiming] = useState(false);
     const [isWithdrawing, setIsWithdrawing] = useState(false);
     const [mintTxHash, setMintTxHash] = useState<Hash>();
+    const { checkIfEligibileForGas } = useContext(GlobalContext)
+
 
     const getStakersData = async () => {
         try {
@@ -48,23 +51,32 @@ const WithdrawNFTs = () => {
 
         if (provider) {
             try {
+                setMintTxHash(undefined)
                 setIsClaiming(true);
-                const stakeCallData = encodeFunctionData({
+                const claimCallData = encodeFunctionData({
                     abi: StakeNFTABI,
                     functionName: "claimRewards",
                     args: [],
                 });
 
-                const uoHash = await provider.sendUserOperation({
+                const claimTxnData = {
                     target: StakingNFT, //ERC 20 token
-                    data: stakeCallData,
-                });
+                    data: claimCallData,
+                }
+
+                const overrides = await checkIfEligibileForGas(claimTxnData);
+                const providerWithSimulation = provider.withAlchemyUserOpSimulation();
+                const uoHash = await providerWithSimulation.sendUserOperation(
+                    //@ts-ignore
+                    claimTxnData, overrides);
 
                 let txHash: Hash;
-                txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
+                txHash = await providerWithSimulation.waitForUserOperationTransaction(uoHash.hash);
                 toast.success("Rewards claimed successfully ✅");
                 if (txHash) {
+                    console.log("Txn hash", txHash)
                     setIsClaiming(false);
+                    setMintTxHash(txHash);
 
                 }
 
@@ -85,9 +97,8 @@ const WithdrawNFTs = () => {
 
         if (provider) {
             try {
+                setMintTxHash(undefined)
                 setIsWithdrawing(true);
-                console.log("res", stakedNFTTokenIds);
-
                 const stakeCallData = encodeFunctionData({
                     abi: StakeNFTABI,
                     functionName: "withdraw",
@@ -95,11 +106,10 @@ const WithdrawNFTs = () => {
                 });
 
                 const uoHash = await provider.sendUserOperation({
-                    target: StakingNFT, //ERC 20 token
+                    target: StakingNFT,
                     data: stakeCallData,
                 });
 
-                // setMintStatus("Minting");
                 let txHash: Hash;
                 txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
                 if (txHash) {
@@ -125,11 +135,10 @@ const WithdrawNFTs = () => {
         <div>
             <div className='text-[32px]'> Claim Rewards and Withdraw NFT</div>
 
-            {mintTxHash && <div className='flex flex-row gap-4'>
-                <div>Recent Transaction</div>
-                <div>
-                    {mintTxHash}
-                    <AddressLabel address={mintTxHash} isTransactionAddress />
+            {mintTxHash && <div className='flex flex-col mt-4'>
+                <div className='text-[24px]'>Recent Transactions</div>
+                <div className="px-4 py-2 border border-gray-400 rounded-lg">
+                    <AddressLabel address={mintTxHash} showFullAddress isTransactionAddress showBlockExplorerLink />
                 </div>
             </div>}
 
@@ -166,11 +175,11 @@ const WithdrawNFTs = () => {
                         <>
                             <div className='text-[32px]'>NFTs Staked</div>
 
-                            <div className='flex flex-row py-[20px] flex-nowrap overflow-scroll gap-4'>
+                            <div className='flex flex-row py-[20px] flex-nowrap gap-4'>
                                 {/* @ts-ignore */}
                                 {stakedNFTTokenIds && stakedNFTTokenIds?.map((stakedNFTTokenId: any) => {
                                     return (
-                                        <StakedNFT getStakersData={getStakersData} nftTokenId={stakedNFTTokenId} />
+                                        <StakedNFT setMintTxHash={setMintTxHash} getStakersData={getStakersData} nftTokenId={stakedNFTTokenId} />
                                     )
                                 })}
                             </div>
@@ -185,4 +194,4 @@ const WithdrawNFTs = () => {
     );
 };
 
-export default WithdrawNFTs;
+export default index;

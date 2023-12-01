@@ -1,13 +1,15 @@
 // @ts-nocheck
-import { NFTABI, NFTContract } from '@/constants/PokemonNFT';
-import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import React, { useContext, useEffect, useState } from 'react';
-import { Hash, encodeFunctionData } from 'viem';
+import { Hash } from 'viem';
 import { ethers } from 'ethers';
 import Image from 'next/image';
-import LoaderSpinner from '../Loader/LoaderSpinner';
 import { toast } from 'react-toastify';
+import LoaderSpinner from '../Loader/LoaderSpinner';
 import AddressLabel from '../AddressLabel/AddressLabel';
+import { GlobalContext } from '@/context/GlobalContext';
+import { NFTABI, NFTContract } from '@/constants/PokemonNFT';
+import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
+
 
 type MintStatus =
     | "Mint"
@@ -49,8 +51,6 @@ const MintNFT = () => {
             web3Provider,
         )
 
-        console.log("Contract", contract, web3Provider)
-
         const minTx = await contract.populateTransaction['claim'](
             receiver,
             quantity,
@@ -59,9 +59,13 @@ const MintNFT = () => {
             allowProof,
             data
         )
-        console.log("minTx", minTx.data, provider);
 
-        return minTx.data;
+        const txnData = {
+            target: NFTContract,
+            data: minTx.data,
+        }
+
+        return txnData;
     }
 
     const mintNFT = async () => {
@@ -71,7 +75,6 @@ const MintNFT = () => {
         }
         if (smartWalletAddress) {
             setMintTxHash(undefined);
-            setIsLoading(true);
             const data = await encodeTransactionData();
             setMintStatus("Minting");
 
@@ -80,19 +83,15 @@ const MintNFT = () => {
                     target: NFTContract,
                     data: data,
                 });
-                console.log("Uo HAsh", uoHash);
                 let txHash: Hash;
                 txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
-                console.log("Tx hash", txHash);
                 toast.success("NFT Minted successfully ✅");
-                setIsLoading(false);
                 setMintTxHash(txHash);
                 if (txHash) {
                     getNFTs();
                 }
 
             } catch (e) {
-                setIsLoading(false);
                 console.log("Error in minting", e);
                 setMintStatus("Mint");
                 toast.error("Error in minting", e);
@@ -113,9 +112,7 @@ const MintNFT = () => {
         try {
             setLoadingNFTs(true);
             const nfts = await provider.nft.getNftsForOwner(smartWalletAddress);
-            console.log("Owned NFT", nfts, smartWalletAddress);
             const { ownedNfts } = nfts;
-            console.log("Owned NFT", ownedNFTs);
             setOwnedNFTs(ownedNfts);
             setLoadingNFTs(false);
         } catch (error) {
@@ -126,11 +123,12 @@ const MintNFT = () => {
     }
 
     useEffect(() => {
-        console.log("Provider", provider)
         if (provider) {
             getNFTs();
         }
     }, [])
+
+    const { checkIfEligibileForGas } = useContext(GlobalContext)
 
     const mintNFTGasless = async () => {
 
@@ -138,36 +136,25 @@ const MintNFT = () => {
             throw new Error("web3auth provider is available");
         }
         if (smartWalletAddress) {
-
-            const data = await encodeTransactionData();
-
-            const GAS_MANAGER_POLICY_ID = "YourGasManagerPolicyId";
-
-            provider.withAlchemyGasManager({
-                policyId: GAS_MANAGER_POLICY_ID,
-            });
+            setIsLoading(true);
+            const txnData = await encodeTransactionData();
+            const overrides = await checkIfEligibileForGas(txnData);
 
             try {
-
-                const uoHash = await provider.sendUserOperation({
-                    target: NFTContract,
-                    data: data,
-                });
-
-                console.log("Uo HAsh", uoHash);
-
+                const providerWithSimulation = provider.withAlchemyUserOpSimulation();
+                const uoHash = await providerWithSimulation.sendUserOperation(txnData, overrides);
                 let txHash: Hash;
-
-                txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
+                txHash = await providerWithSimulation.waitForUserOperationTransaction(uoHash.hash);
                 toast.success("NFT Minted Successfully 🚀");
-                console.log("Tx hash", txHash);
+                if (txHash) {
+                    setMintTxHash(txHash);
+                    setIsLoading(false);
+                    getNFTs();
+                }
             } catch (e) {
                 toast.error("Error in minting");
                 console.log("Error in minting", e);
-                // setMintStatus("Error Minting");
-                // setTimeout(() => {
-                //     setMintStatus("Mint");
-                // }, 5000);
+                setIsLoading(false);
                 return;
             }
         }
@@ -181,10 +168,10 @@ const MintNFT = () => {
 
             <div className='text-[32px]'>Mint PokeMon NFT</div>
 
-            {mintTxHash && <div className='flex flex-row gap-4'>
-                <div>Recent Transaction</div>
-                <div>
-                    <AddressLabel address={mintTxHash} isTransactionAddress />
+            {mintTxHash && <div className='flex flex-col mt-4'>
+                <div className='text-[24px]'>Recent Transactions</div>
+                <div className="px-4 py-2 border border-gray-400 rounded-lg">
+                    <AddressLabel address={mintTxHash} showFullAddress isTransactionAddress showBlockExplorerLink />
                 </div>
             </div>}
 
@@ -197,14 +184,18 @@ const MintNFT = () => {
                         <LoaderSpinner color={"#FFF"} size={20} loading={true} />
                     ) : `${mintStatus} NFT`}
                 </button>
+
                 <button onClick={mintNFTGasless}
+                    disabled={isLoading}
                     className='rounded-md min-w-[150px] border border-blue-700 hover:bg-blue-700 hover:text-white px-4 py-2 '>
-                    Mint NFT Gasless
+                    {isLoading ? (
+                        <LoaderSpinner color={"#FFF"} size={20} loading={true} />
+                    ) : `${mintStatus} NFT Gasless`}
                 </button>
             </div>
 
             <div className='text-[24px] mt-[24px]'>Minted NFTs</div>
-            <div className='text-[16px] my-4 font-light text-gray-500'>NFTs that you have minted and own</div>
+            <div className='text-[16px] my-4 font-light text-gray-500'>NFTs that you have minted and not staked. Stake Now and Earn rewards based on time.</div>
 
             {loadingNFTs ? (
                 <div className='flex flex-row items-center justify-center'>

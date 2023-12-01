@@ -1,4 +1,4 @@
-// @ts-nocheck
+//@ts-nocheck
 'use client'
 import { NFTABI, NFTContract } from '@/constants/PokemonNFT';
 import { StakeNFTABI, StakingNFT } from '@/constants/StakingNFT';
@@ -9,18 +9,20 @@ import React, { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Hash, encodeFunctionData } from 'viem';
 import LoaderSpinner from '../Loader/LoaderSpinner';
+import { GlobalContext } from '@/context/GlobalContext';
 
 const StakedNFT = ({
     getStakersData,
-    nftTokenId
+    nftTokenId,
+    setMintTxHash
 }: any) => {
     const { provider, web3auth } = useContext(AccountAbstractionContext);
 
     const [stakedToken, setStakedToken] = useState();
     const [stakedNFT, setStakedNFT] = useState();
     const [nftImage, setNFTImage] = useState();
+    const { checkIfEligibileForGas } = useContext(GlobalContext)
 
-    const [mintTxHash, setMintTxHash] = useState<Hash>();
     const [isWithdrawing, setIsWithdrawing] = useState(false);
 
     useEffect(() => {
@@ -58,6 +60,8 @@ const StakedNFT = ({
 
     }, [provider, nftTokenId])
 
+
+
     const withdrawNFT = async (tokenId: any) => {
 
         if (web3auth?.provider == null) {
@@ -74,17 +78,18 @@ const StakedNFT = ({
                     args: [[tokenId]],
                 });
 
-                const providerWithSimulation = provider.withAlchemyUserOpSimulation();
-
-                const uoHash = await providerWithSimulation.sendUserOperation({
+                const stakeTxnData = {
                     target: StakingNFT, //ERC 20 token
                     data: stakeCallData,
-                });
+                }
 
+                const overrides = await checkIfEligibileForGas(stakeTxnData);
+                const providerWithSimulation = provider.withAlchemyUserOpSimulation();
+                const uoHash = await providerWithSimulation.sendUserOperation(stakeTxnData, overrides);
                 let txHash: Hash;
                 txHash = await providerWithSimulation.waitForUserOperationTransaction(uoHash.hash);
                 if (txHash) {
-                    toast.success("Toast Withdrawn successfully ✅");
+                    toast.success("NFT Withdrawn successfully ✅");
                     setMintTxHash(txHash);
                     setIsWithdrawing(false);
                     getStakersData();
@@ -119,7 +124,7 @@ const StakedNFT = ({
                     >
                         {isWithdrawing ? (
                             <LoaderSpinner color={"#FFF"} size={25} loading={true} />
-                        ) : 'Withdraw NFT'}
+                        ) : 'Withdraw NFT Gasless'}
                     </button>
                 </div>
             </div>}

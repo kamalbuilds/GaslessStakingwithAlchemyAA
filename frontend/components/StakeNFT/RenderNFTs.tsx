@@ -6,6 +6,7 @@ import React, { useContext, useState } from 'react';
 import { Hash, encodeFunctionData } from 'viem';
 import { toast } from "react-toastify";
 import LoaderSpinner from '../Loader/LoaderSpinner';
+import { GlobalContext } from '@/context/GlobalContext';
 
 type MintStatus =
     | "Stake"
@@ -14,13 +15,17 @@ type MintStatus =
     | "Staked"
     | "Error Staking";
 
-const ShowNFT = ({
+const RenderNFTs = ({
     nft,
-    setMintTxHash
+    setMintTxHash,
+    fetchNFTs
 }: any) => {
 
     const { web3auth, smartWalletAddress, provider } = useContext(AccountAbstractionContext);
     const [isStaking, setIsStaking] = useState(false);
+    const [stakingGasless, setStakingGasless] = useState(false);
+    const { checkIfEligibileForGas } = useContext(GlobalContext)
+
 
     const approveNFT = async (tokenId: any) => {
         if (web3auth?.provider == null) {
@@ -37,7 +42,6 @@ const ShowNFT = ({
                 target: NFTContract,
                 data: callData
             };
-            console.log("approveTxData data", approveTxData);
             return approveTxData;
         }
     }
@@ -53,39 +57,48 @@ const ShowNFT = ({
             target: StakingNFT,
             data: stakeCallData
         };
-        console.log("stakeTxData Data", stakeTxData);
         return stakeTxData;
     }
 
-    const handleStakeBatch = async (tokenId: any) => {
+    const stakeGasless = async (tokenId: any) => {
 
         if (!provider) {
             throw new Error("Provider not initialized");
         }
-
-        setMintTxHash(undefined);
-        setIsStaking(true);
-        const approveCallData = await approveNFT(tokenId);
-        const stakeCallData = await stakeNFT(tokenId);
-
-        const uoHash = await provider.sendUserOperation([
-            // @ts-ignore
-            approveCallData, stakeCallData,
-        ]);
-
-        toast.update("minting going on");
-        let txHash: Hash;
         try {
-            txHash = await provider.waitForUserOperationTransaction(uoHash.hash);
+
+            setMintTxHash(undefined);
+            setStakingGasless(true);
+            const approveCallData = await approveNFT(tokenId);
+            const stakeCallData = await stakeNFT(tokenId);
+
+            const txnData = [approveCallData, stakeCallData]
+
+            const overrides = await checkIfEligibileForGas(txnData);
+
+            const providerWithSimulation = provider.withAlchemyUserOpSimulation();
+
+            const uoHash = await providerWithSimulation.sendUserOperation(
+                //@ts-ignore
+                txnData, overrides
+            );
+
+            toast.update("Staking going on");
+            let txHash: Hash;
+            txHash = await providerWithSimulation.waitForUserOperationTransaction(uoHash.hash);
             toast.success("NFT Staked successfully ✅");
-            setIsStaking(false);
+            setMintTxHash(txHash);
+            setStakingGasless(false);
+            fetchNFTs();
+
+
         } catch (e) {
-            console.log("Error in minting", e);
-            setIsStaking(false);
+            console.log("Error in staking", e);
+            toast.success("Error in staking");
+            setStakingGasless(false);
             return;
         }
 
-        setMintTxHash(txHash);
 
     }
 
@@ -111,21 +124,26 @@ const ShowNFT = ({
             </div>
 
 
-            <div className='flex flex-row gap-4 justify-center mt-[20px]'>
+            <div className='flex flex-col gap-4 justify-center mt-[20px]'>
 
-                <button
-                    disabled={isStaking}
-                    onClick={() => handleStakeBatch(nft.tokenId)}
-                    className='rounded-md flex flex-row items-center justify-center min-w-[250px] bg-blue-700 text-white hover:bg-blue-900 px-4 py-2 '
-                >
-                    {!isStaking && `Stake ${nft.name} NFT`}
-                    {isStaking && (
-                        <LoaderSpinner color={"#FFF"} size={25} loading={true} />
-                    )}
-                </button>
+                <div className='flex flex-col items-center gap-4'>
+                    <button
+                        disabled={stakingGasless}
+                        onClick={() => stakeGasless(nft.tokenId)}
+                        className='rounded-md flex flex-row items-center justify-center min-w-[250px] bg-blue-700 text-white hover:bg-blue-900 px-4 py-2 '
+                    >
+                        {!stakingGasless && `Stake ${nft.name} NFT`}
+                        {stakingGasless && (
+                            <LoaderSpinner color={"#FFF"} size={25} loading={true} />
+                        )}
+                    </button>
+
+                </div>
+
+
             </div>
         </div>
     );
 };
 
-export default ShowNFT;
+export default RenderNFTs;

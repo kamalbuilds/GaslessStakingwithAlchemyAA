@@ -4,7 +4,7 @@ import { AccountAbstractionContext } from '@/context/AccountAbstractionContext';
 import { useStakingContract } from '@/hooks/useContract';
 import { ethers } from 'ethers';
 import React, { useContext, useEffect, useState } from 'react';
-import StakedNFT from './StakedNFT';
+import StakedNFT from '../WithdrawNFT/StakedNFT';
 
 const ShowStakedNFT = () => {
 
@@ -19,11 +19,9 @@ const ShowStakedNFT = () => {
 
         if (provider) {
             const getStakersData = async () => {
-                console.log("staking", getStakingInfo, smartWalletAddress)
                 const res = await getStakingInfo(smartWalletAddress);
                 const { rewardNumber, nftTokenIds } = res;
                 showStakedNFTTokenIds(nftTokenIds);
-                console.log("res in show staked nft", res);
             }
             getStakersData();
         }
